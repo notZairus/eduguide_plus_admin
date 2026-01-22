@@ -1,26 +1,45 @@
-import { useEffect } from "react";
-import { Switch, Route, useLocation } from "wouter";
+import DashboardLayout from "./layouts/DashboardLayout";
+import Dashboard from "./pages/Dashboard";
 import LoginPage from "./pages/LoginPage";
+import UnauthenticatedRoute from "./components/UnauthenticatedRoute";
+// import AuthenticatedRoute from "./components/AuthenticatedRoute";
+import { Routes, Route } from "react-router";
+import AuthenticatedRoute from "./components/AuthenticatedRoute";
 
 const App = () => {
-  const [location, navigate] = useLocation();
-
-  useEffect(() => {
-    navigate("/login");
-  }, []);
-
   return (
     <>
-      <Switch>
-        <Route path="/login" component={LoginPage} />
+      {/* PUBLIC ROUTES */}
+      <Routes>
+        <Route path="/" element={<p>Hello world</p>} />
+      </Routes>
 
-        <Route path="/users/:name">
-          {(params) => <>Hello, {params.name}!</>}
+      {/* UNAUTHENTICATED ROUTES */}
+      <Routes>
+        <Route>
+          <Route
+            path="/login"
+            element={
+              <UnauthenticatedRoute>
+                <LoginPage />
+              </UnauthenticatedRoute>
+            }
+          />
         </Route>
+      </Routes>
 
-        {/* Default route in a switch */}
-        <Route>404: No such page!</Route>
-      </Switch>
+      {/* AUTHENTICATED ROUTES */}
+      <Routes>
+        <Route
+          element={
+            <AuthenticatedRoute>
+              <DashboardLayout />
+            </AuthenticatedRoute>
+          }
+        >
+          <Route path="/dashboard" element={<Dashboard />} />
+        </Route>
+      </Routes>
     </>
   );
 };

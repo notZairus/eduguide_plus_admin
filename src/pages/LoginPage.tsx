@@ -1,19 +1,29 @@
 import nc_logo from "@/assets/images/nc_logo.png";
 import { useState, type FormEvent } from "react";
+import { api } from "../lib/api";
+import { Separator } from "../components/ui/separator";
+import { useNavigate } from "react-router";
 
 export default function LoginPage() {
   const [loginData, setLoginData] = useState<{
     email: string;
     password: string;
   }>({
-    email: "",
-    password: "",
+    email: "zairusvillasisbermillo@gmail.com",
+    password: "QZr8408o",
   });
+  const [error, setError] = useState("");
+  const navigate = useNavigate();
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
 
-    // #TODO send request to backend
+    try {
+      const res = await api.post("/auth/login", loginData);
+      if (res.status === 200) navigate("/dashboard");
+    } catch (e: any) {
+      setError(e.response.data);
+    }
 
     setLoginData({ email: "", password: "" });
   };
@@ -32,6 +42,10 @@ export default function LoginPage() {
           </div>
           <h1 className="text-xl font-semibold text-gray-800">NC EduGuide+</h1>
         </div>
+
+        <div className="text-center text-destructive">{error}</div>
+
+        <Separator className="my-8"></Separator>
 
         <form className="space-y-4" onSubmit={handleSubmit}>
           <div>
