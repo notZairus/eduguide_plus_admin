@@ -1,5 +1,6 @@
-import { LayoutDashboard } from "lucide-react";
+import { LayoutDashboard, BookMarked } from "lucide-react";
 import nc_logo from "@/assets/images/nc_logo.png";
+import { Link } from "react-router";
 
 import {
   Sidebar,
@@ -31,9 +32,9 @@ const items = [
     icon: LayoutDashboard,
   },
   {
-    title: "fish",
-    url: "/fish",
-    icon: LayoutDashboard,
+    title: "Handbook",
+    url: "/handbook",
+    icon: BookMarked,
   },
 ];
 
@@ -43,8 +44,12 @@ export function AppSidebar() {
   const navigate = useNavigate();
 
   async function handleSignOut() {
-    await api.get("/auth/logout");
-    navigate("/login");
+    try {
+      await api.get("/auth/logout"); // wait for server to process logout
+      navigate("/login");
+    } catch (error) {
+      console.error("Logout failed", error);
+    }
   }
 
   return (
@@ -74,10 +79,10 @@ export function AppSidebar() {
                     isActive={item.url.includes(pathname)}
                     className="rounded transition-all"
                   >
-                    <a href={item.url}>
+                    <Link to={item.url}>
                       <item.icon />
                       <span>{item.title}</span>
-                    </a>
+                    </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               ))}
@@ -110,8 +115,8 @@ export function AppSidebar() {
                   sideOffset={4}
                   className="w-[--radix-popper-anchor-width] -translate-y-8 -translate-x-4"
                 >
-                  <DropdownMenuItem>
-                    <span onClick={handleSignOut}>Sign out</span>
+                  <DropdownMenuItem onClick={handleSignOut}>
+                    <span>Sign out</span>
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>

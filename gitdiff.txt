@@ -1,0 +1,968 @@
+diff --git a/package-lock.json b/package-lock.json
+index c2110a5..5d03761 100644
+--- a/package-lock.json
++++ b/package-lock.json
+@@ -8,8 +8,12 @@
+       "name": "eduguide_plus_admin",
+       "version": "0.0.0",
+       "dependencies": {
++        "@dnd-kit/core": "^6.3.1",
++        "@dnd-kit/sortable": "^10.0.0",
+         "@radix-ui/react-dialog": "^1.1.15",
+         "@radix-ui/react-dropdown-menu": "^2.1.16",
++        "@radix-ui/react-label": "^2.1.8",
++        "@radix-ui/react-scroll-area": "^1.2.10",
+         "@radix-ui/react-separator": "^1.1.8",
+         "@radix-ui/react-slot": "^1.2.4",
+         "@radix-ui/react-tooltip": "^1.2.8",
+@@ -322,6 +326,59 @@
+         "node": ">=6.9.0"
+       }
+     },
++    "node_modules/@dnd-kit/accessibility": {
++      "version": "3.1.1",
++      "resolved": "https://registry.npmjs.org/@dnd-kit/accessibility/-/accessibility-3.1.1.tgz",
++      "integrity": "sha512-2P+YgaXF+gRsIihwwY1gCsQSYnu9Zyj2py8kY5fFvUM1qm2WA2u639R6YNVfU4GWr+ZM5mqEsfHZZLoRONbemw==",
++      "license": "MIT",
++      "dependencies": {
++        "tslib": "^2.0.0"
++      },
++      "peerDependencies": {
++        "react": ">=16.8.0"
++      }
++    },
++    "node_modules/@dnd-kit/core": {
++      "version": "6.3.1",
++      "resolved": "https://registry.npmjs.org/@dnd-kit/core/-/core-6.3.1.tgz",
++      "integrity": "sha512-xkGBRQQab4RLwgXxoqETICr6S5JlogafbhNsidmrkVv2YRs5MLwpjoF2qpiGjQt8S9AoxtIV603s0GIUpY5eYQ==",
++      "license": "MIT",
++      "dependencies": {
++        "@dnd-kit/accessibility": "^3.1.1",
++        "@dnd-kit/utilities": "^3.2.2",
++        "tslib": "^2.0.0"
++      },
++      "peerDependencies": {
++        "react": ">=16.8.0",
++        "react-dom": ">=16.8.0"
++      }
++    },
++    "node_modules/@dnd-kit/sortable": {
++      "version": "10.0.0",
++      "resolved": "https://registry.npmjs.org/@dnd-kit/sortable/-/sortable-10.0.0.tgz",
++      "integrity": "sha512-+xqhmIIzvAYMGfBYYnbKuNicfSsk4RksY2XdmJhT+HAC01nix6fHCztU68jooFiMUB01Ky3F0FyOvhG/BZrWkg==",
++      "license": "MIT",
++      "dependencies": {
++        "@dnd-kit/utilities": "^3.2.2",
++        "tslib": "^2.0.0"
++      },
++      "peerDependencies": {
++        "@dnd-kit/core": "^6.3.0",
++        "react": ">=16.8.0"
++      }
++    },
++    "node_modules/@dnd-kit/utilities": {
++      "version": "3.2.2",
++      "resolved": "https://registry.npmjs.org/@dnd-kit/utilities/-/utilities-3.2.2.tgz",
++      "integrity": "sha512-+MKAJEOfaBe5SmV6t34p80MMKhjvUz0vRrvVJbPT0WElzaOJ/1xs+D+KDv+tD/NE5ujfrChEcshd4fLn0wpiqg==",
++      "license": "MIT",
++      "dependencies": {
++        "tslib": "^2.0.0"
++      },
++      "peerDependencies": {
++        "react": ">=16.8.0"
++      }
++    },
+     "node_modules/@esbuild/aix-ppc64": {
+       "version": "0.27.2",
+       "resolved": "https://registry.npmjs.org/@esbuild/aix-ppc64/-/aix-ppc64-0.27.2.tgz",
+@@ -1030,6 +1087,12 @@
+         "@jridgewell/sourcemap-codec": "^1.4.14"
+       }
+     },
++    "node_modules/@radix-ui/number": {
++      "version": "1.1.1",
++      "resolved": "https://registry.npmjs.org/@radix-ui/number/-/number-1.1.1.tgz",
++      "integrity": "sha512-MkKCwxlXTgz6CFoJx3pCwn07GKp36+aZyu/u2Ln2VrA5DcdyCZkASEDBTd8x5whTQQL5CiYf4prXKLcgQdv29g==",
++      "license": "MIT"
++    },
+     "node_modules/@radix-ui/primitive": {
+       "version": "1.1.3",
+       "resolved": "https://registry.npmjs.org/@radix-ui/primitive/-/primitive-1.1.3.tgz",
+@@ -1526,6 +1589,29 @@
+         }
+       }
+     },
++    "node_modules/@radix-ui/react-label": {
++      "version": "2.1.8",
++      "resolved": "https://registry.npmjs.org/@radix-ui/react-label/-/react-label-2.1.8.tgz",
++      "integrity": "sha512-FmXs37I6hSBVDlO4y764TNz1rLgKwjJMQ0EGte6F3Cb3f4bIuHB/iLa/8I9VKkmOy+gNHq8rql3j686ACVV21A==",
++      "license": "MIT",
++      "dependencies": {
++        "@radix-ui/react-primitive": "2.1.4"
++      },
++      "peerDependencies": {
++        "@types/react": "*",
++        "@types/react-dom": "*",
++        "react": "^16.8 || ^17.0 || ^18.0 || ^19.0 || ^19.0.0-rc",
++        "react-dom": "^16.8 || ^17.0 || ^18.0 || ^19.0 || ^19.0.0-rc"
++      },
++      "peerDependenciesMeta": {
++        "@types/react": {
++          "optional": true
++        },
++        "@types/react-dom": {
++          "optional": true
++        }
++      }
++    },
+     "node_modules/@radix-ui/react-menu": {
+       "version": "2.1.16",
+       "resolved": "https://registry.npmjs.org/@radix-ui/react-menu/-/react-menu-2.1.16.tgz",
+@@ -1864,6 +1950,78 @@
+         }
+       }
+     },
++    "node_modules/@radix-ui/react-scroll-area": {
++      "version": "1.2.10",
++      "resolved": "https://registry.npmjs.org/@radix-ui/react-scroll-area/-/react-scroll-area-1.2.10.tgz",
++      "integrity": "sha512-tAXIa1g3sM5CGpVT0uIbUx/U3Gs5N8T52IICuCtObaos1S8fzsrPXG5WObkQN3S6NVl6wKgPhAIiBGbWnvc97A==",
++      "license": "MIT",
++      "dependencies": {
++        "@radix-ui/number": "1.1.1",
++        "@radix-ui/primitive": "1.1.3",
++        "@radix-ui/react-compose-refs": "1.1.2",
++        "@radix-ui/react-context": "1.1.2",
++        "@radix-ui/react-direction": "1.1.1",
++        "@radix-ui/react-presence": "1.1.5",
++        "@radix-ui/react-primitive": "2.1.3",
++        "@radix-ui/react-use-callback-ref": "1.1.1",
++        "@radix-ui/react-use-layout-effect": "1.1.1"
++      },
++      "peerDependencies": {
++        "@types/react": "*",
++        "@types/react-dom": "*",
++        "react": "^16.8 || ^17.0 || ^18.0 || ^19.0 || ^19.0.0-rc",
++        "react-dom": "^16.8 || ^17.0 || ^18.0 || ^19.0 || ^19.0.0-rc"
++      },
++      "peerDependenciesMeta": {
++        "@types/react": {
++          "optional": true
++        },
++        "@types/react-dom": {
++          "optional": true
++        }
++      }
++    },
++    "node_modules/@radix-ui/react-scroll-area/node_modules/@radix-ui/react-primitive": {
++      "version": "2.1.3",
++      "resolved": "https://registry.npmjs.org/@radix-ui/react-primitive/-/react-primitive-2.1.3.tgz",
++      "integrity": "sha512-m9gTwRkhy2lvCPe6QJp4d3G1TYEUHn/FzJUtq9MjH46an1wJU+GdoGC5VLof8RX8Ft/DlpshApkhswDLZzHIcQ==",
++      "license": "MIT",
++      "dependencies": {
++        "@radix-ui/react-slot": "1.2.3"
++      },
++      "peerDependencies": {
++        "@types/react": "*",
++        "@types/react-dom": "*",
++        "react": "^16.8 || ^17.0 || ^18.0 || ^19.0 || ^19.0.0-rc",
++        "react-dom": "^16.8 || ^17.0 || ^18.0 || ^19.0 || ^19.0.0-rc"
++      },
++      "peerDependenciesMeta": {
++        "@types/react": {
++          "optional": true
++        },
++        "@types/react-dom": {
++          "optional": true
++        }
++      }
++    },
++    "node_modules/@radix-ui/react-scroll-area/node_modules/@radix-ui/react-slot": {
++      "version": "1.2.3",
++      "resolved": "https://registry.npmjs.org/@radix-ui/react-slot/-/react-slot-1.2.3.tgz",
++      "integrity": "sha512-aeNmHnBxbi2St0au6VBVC7JXFlhLlOnvIIlePNniyUNAClzmtAUEY8/pBiK3iHjufOlwA+c20/8jngo7xcrg8A==",
++      "license": "MIT",
++      "dependencies": {
++        "@radix-ui/react-compose-refs": "1.1.2"
++      },
++      "peerDependencies": {
++        "@types/react": "*",
++        "react": "^16.8 || ^17.0 || ^18.0 || ^19.0 || ^19.0.0-rc"
++      },
++      "peerDependenciesMeta": {
++        "@types/react": {
++          "optional": true
++        }
++      }
++    },
+     "node_modules/@radix-ui/react-separator": {
+       "version": "1.1.8",
+       "resolved": "https://registry.npmjs.org/@radix-ui/react-separator/-/react-separator-1.1.8.tgz",
+diff --git a/package.json b/package.json
+index b136aa4..dd0ecb0 100644
+--- a/package.json
++++ b/package.json
+@@ -10,8 +10,12 @@
+     "preview": "vite preview"
+   },
+   "dependencies": {
++    "@dnd-kit/core": "^6.3.1",
++    "@dnd-kit/sortable": "^10.0.0",
+     "@radix-ui/react-dialog": "^1.1.15",
+     "@radix-ui/react-dropdown-menu": "^2.1.16",
++    "@radix-ui/react-label": "^2.1.8",
++    "@radix-ui/react-scroll-area": "^1.2.10",
+     "@radix-ui/react-separator": "^1.1.8",
+     "@radix-ui/react-slot": "^1.2.4",
+     "@radix-ui/react-tooltip": "^1.2.8",
+diff --git a/src/App.tsx b/src/App.tsx
+index dd209f4..3d8e373 100644
+--- a/src/App.tsx
++++ b/src/App.tsx
+@@ -1,10 +1,12 @@
+-import DashboardLayout from "./layouts/DashboardLayout";
++import MainLayout from "./layouts/MainLayout";
+ import Dashboard from "./pages/Dashboard";
+ import LoginPage from "./pages/LoginPage";
+ import UnauthenticatedRoute from "./components/UnauthenticatedRoute";
+ // import AuthenticatedRoute from "./components/AuthenticatedRoute";
+ import { Routes, Route } from "react-router";
+-import AuthenticatedRoute from "./components/AuthenticatedRoute";
++// import AuthenticatedRoute from "./components/AuthenticatedRoute";
++import HandbookIndex from "./pages/handbook/index";
++import HandbookShow from "./pages/handbook/show";
+ 
+ const App = () => {
+   return (
+@@ -12,10 +14,6 @@ const App = () => {
+       {/* PUBLIC ROUTES */}
+       <Routes>
+         <Route path="/" element={<p>Hello world</p>} />
+-      </Routes>
+-
+-      {/* UNAUTHENTICATED ROUTES */}
+-      <Routes>
+         <Route>
+           <Route
+             path="/login"
+@@ -25,19 +23,12 @@ const App = () => {
+               </UnauthenticatedRoute>
+             }
+           />
+-        </Route>
+-      </Routes>
++          <Route element={<MainLayout />}>
++            <Route path="/dashboard" element={<Dashboard />} />
+ 
+-      {/* AUTHENTICATED ROUTES */}
+-      <Routes>
+-        <Route
+-          element={
+-            <AuthenticatedRoute>
+-              <DashboardLayout />
+-            </AuthenticatedRoute>
+-          }
+-        >
+-          <Route path="/dashboard" element={<Dashboard />} />
++            <Route path="/handbook" element={<HandbookIndex />} />
++            <Route path="/handbook/:id" element={<HandbookShow />} />
++          </Route>
+         </Route>
+       </Routes>
+     </>
+diff --git a/src/components/SortableSection.tsx b/src/components/SortableSection.tsx
+new file mode 100644
+index 0000000..97886bc
+--- /dev/null
++++ b/src/components/SortableSection.tsx
+@@ -0,0 +1,28 @@
++import { useSortable } from "@dnd-kit/sortable";
++import { CSS } from "@dnd-kit/utilities";
++
++export default function SortableSection({ section, children }) {
++  const { attributes, listeners, setNodeRef, transform, transition } =
++    useSortable({ id: section._id });
++
++  const style = {
++    transform: CSS.Transform.toString(transform),
++    transition,
++  };
++
++  return (
++    <div
++      ref={setNodeRef}
++      style={style}
++      {...attributes}
++      className="w-full h-full"
++    >
++      <div
++        {...listeners}
++        className="cursor-grab w-full bg-nc-blue h-4 rounded-t"
++      />
++
++      <div>{children}</div>
++    </div>
++  );
++}
+diff --git a/src/components/app-sidebar.tsx b/src/components/app-sidebar.tsx
+index d5111cc..f045298 100644
+--- a/src/components/app-sidebar.tsx
++++ b/src/components/app-sidebar.tsx
+@@ -1,5 +1,6 @@
+-import { LayoutDashboard } from "lucide-react";
++import { LayoutDashboard, BookMarked } from "lucide-react";
+ import nc_logo from "@/assets/images/nc_logo.png";
++import { Link } from "react-router";
+ 
+ import {
+   Sidebar,
+@@ -31,9 +32,9 @@ const items = [
+     icon: LayoutDashboard,
+   },
+   {
+-    title: "fish",
+-    url: "/fish",
+-    icon: LayoutDashboard,
++    title: "Handbook",
++    url: "/handbook",
++    icon: BookMarked,
+   },
+ ];
+ 
+@@ -43,8 +44,12 @@ export function AppSidebar() {
+   const navigate = useNavigate();
+ 
+   async function handleSignOut() {
+-    await api.get("/auth/logout");
+-    navigate("/login");
++    try {
++      await api.get("/auth/logout"); // wait for server to process logout
++      navigate("/login");
++    } catch (error) {
++      console.error("Logout failed", error);
++    }
+   }
+ 
+   return (
+@@ -74,10 +79,10 @@ export function AppSidebar() {
+                     isActive={item.url.includes(pathname)}
+                     className="rounded transition-all"
+                   >
+-                    <a href={item.url}>
++                    <Link to={item.url}>
+                       <item.icon />
+                       <span>{item.title}</span>
+-                    </a>
++                    </Link>
+                   </SidebarMenuButton>
+                 </SidebarMenuItem>
+               ))}
+@@ -110,8 +115,8 @@ export function AppSidebar() {
+                   sideOffset={4}
+                   className="w-[--radix-popper-anchor-width] -translate-y-8 -translate-x-4"
+                 >
+-                  <DropdownMenuItem>
+-                    <span onClick={handleSignOut}>Sign out</span>
++                  <DropdownMenuItem onClick={handleSignOut}>
++                    <span>Sign out</span>
+                   </DropdownMenuItem>
+                 </DropdownMenuContent>
+               </DropdownMenu>
+diff --git a/src/components/ui/button.tsx b/src/components/ui/button.tsx
+index 37a7d4b..46b3a48 100644
+--- a/src/components/ui/button.tsx
++++ b/src/components/ui/button.tsx
+@@ -1,8 +1,8 @@
+-import * as React from "react"
+-import { Slot } from "@radix-ui/react-slot"
+-import { cva, type VariantProps } from "class-variance-authority"
++import * as React from "react";
++import { Slot } from "@radix-ui/react-slot";
++import { cva, type VariantProps } from "class-variance-authority";
+ 
+-import { cn } from "@/lib/utils"
++import { cn } from "@/lib/utils";
+ 
+ const buttonVariants = cva(
+   "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive",
+@@ -33,8 +33,8 @@ const buttonVariants = cva(
+       variant: "default",
+       size: "default",
+     },
+-  }
+-)
++  },
++);
+ 
+ function Button({
+   className,
+@@ -44,9 +44,9 @@ function Button({
+   ...props
+ }: React.ComponentProps<"button"> &
+   VariantProps<typeof buttonVariants> & {
+-    asChild?: boolean
++    asChild?: boolean;
+   }) {
+-  const Comp = asChild ? Slot : "button"
++  const Comp = asChild ? Slot : "button";
+ 
+   return (
+     <Comp
+@@ -56,7 +56,7 @@ function Button({
+       className={cn(buttonVariants({ variant, size, className }))}
+       {...props}
+     />
+-  )
++  );
+ }
+ 
+-export { Button, buttonVariants }
++export { Button, buttonVariants };
+diff --git a/src/components/ui/dialog.tsx b/src/components/ui/dialog.tsx
+new file mode 100644
+index 0000000..60cc10e
+--- /dev/null
++++ b/src/components/ui/dialog.tsx
+@@ -0,0 +1,141 @@
++import * as React from "react"
++import * as DialogPrimitive from "@radix-ui/react-dialog"
++import { XIcon } from "lucide-react"
++
++import { cn } from "@/lib/utils"
++
++function Dialog({
++  ...props
++}: React.ComponentProps<typeof DialogPrimitive.Root>) {
++  return <DialogPrimitive.Root data-slot="dialog" {...props} />
++}
++
++function DialogTrigger({
++  ...props
++}: React.ComponentProps<typeof DialogPrimitive.Trigger>) {
++  return <DialogPrimitive.Trigger data-slot="dialog-trigger" {...props} />
++}
++
++function DialogPortal({
++  ...props
++}: React.ComponentProps<typeof DialogPrimitive.Portal>) {
++  return <DialogPrimitive.Portal data-slot="dialog-portal" {...props} />
++}
++
++function DialogClose({
++  ...props
++}: React.ComponentProps<typeof DialogPrimitive.Close>) {
++  return <DialogPrimitive.Close data-slot="dialog-close" {...props} />
++}
++
++function DialogOverlay({
++  className,
++  ...props
++}: React.ComponentProps<typeof DialogPrimitive.Overlay>) {
++  return (
++    <DialogPrimitive.Overlay
++      data-slot="dialog-overlay"
++      className={cn(
++        "data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 fixed inset-0 z-50 bg-black/50",
++        className
++      )}
++      {...props}
++    />
++  )
++}
++
++function DialogContent({
++  className,
++  children,
++  showCloseButton = true,
++  ...props
++}: React.ComponentProps<typeof DialogPrimitive.Content> & {
++  showCloseButton?: boolean
++}) {
++  return (
++    <DialogPortal data-slot="dialog-portal">
++      <DialogOverlay />
++      <DialogPrimitive.Content
++        data-slot="dialog-content"
++        className={cn(
++          "bg-background data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 fixed top-[50%] left-[50%] z-50 grid w-full max-w-[calc(100%-2rem)] translate-x-[-50%] translate-y-[-50%] gap-4 rounded-lg border p-6 shadow-lg duration-200 outline-none sm:max-w-lg",
++          className
++        )}
++        {...props}
++      >
++        {children}
++        {showCloseButton && (
++          <DialogPrimitive.Close
++            data-slot="dialog-close"
++            className="ring-offset-background focus:ring-ring data-[state=open]:bg-accent data-[state=open]:text-muted-foreground absolute top-4 right-4 rounded-xs opacity-70 transition-opacity hover:opacity-100 focus:ring-2 focus:ring-offset-2 focus:outline-hidden disabled:pointer-events-none [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4"
++          >
++            <XIcon />
++            <span className="sr-only">Close</span>
++          </DialogPrimitive.Close>
++        )}
++      </DialogPrimitive.Content>
++    </DialogPortal>
++  )
++}
++
++function DialogHeader({ className, ...props }: React.ComponentProps<"div">) {
++  return (
++    <div
++      data-slot="dialog-header"
++      className={cn("flex flex-col gap-2 text-center sm:text-left", className)}
++      {...props}
++    />
++  )
++}
++
++function DialogFooter({ className, ...props }: React.ComponentProps<"div">) {
++  return (
++    <div
++      data-slot="dialog-footer"
++      className={cn(
++        "flex flex-col-reverse gap-2 sm:flex-row sm:justify-end",
++        className
++      )}
++      {...props}
++    />
++  )
++}
++
++function DialogTitle({
++  className,
++  ...props
++}: React.ComponentProps<typeof DialogPrimitive.Title>) {
++  return (
++    <DialogPrimitive.Title
++      data-slot="dialog-title"
++      className={cn("text-lg leading-none font-semibold", className)}
++      {...props}
++    />
++  )
++}
++
++function DialogDescription({
++  className,
++  ...props
++}: React.ComponentProps<typeof DialogPrimitive.Description>) {
++  return (
++    <DialogPrimitive.Description
++      data-slot="dialog-description"
++      className={cn("text-muted-foreground text-sm", className)}
++      {...props}
++    />
++  )
++}
++
++export {
++  Dialog,
++  DialogClose,
++  DialogContent,
++  DialogDescription,
++  DialogFooter,
++  DialogHeader,
++  DialogOverlay,
++  DialogPortal,
++  DialogTitle,
++  DialogTrigger,
++}
+diff --git a/src/components/ui/label.tsx b/src/components/ui/label.tsx
+new file mode 100644
+index 0000000..fb5fbc3
+--- /dev/null
++++ b/src/components/ui/label.tsx
+@@ -0,0 +1,24 @@
++"use client"
++
++import * as React from "react"
++import * as LabelPrimitive from "@radix-ui/react-label"
++
++import { cn } from "@/lib/utils"
++
++function Label({
++  className,
++  ...props
++}: React.ComponentProps<typeof LabelPrimitive.Root>) {
++  return (
++    <LabelPrimitive.Root
++      data-slot="label"
++      className={cn(
++        "flex items-center gap-2 text-sm leading-none font-medium select-none group-data-[disabled=true]:pointer-events-none group-data-[disabled=true]:opacity-50 peer-disabled:cursor-not-allowed peer-disabled:opacity-50",
++        className
++      )}
++      {...props}
++    />
++  )
++}
++
++export { Label }
+diff --git a/src/components/ui/scroll-area.tsx b/src/components/ui/scroll-area.tsx
+new file mode 100644
+index 0000000..9376f59
+--- /dev/null
++++ b/src/components/ui/scroll-area.tsx
+@@ -0,0 +1,56 @@
++import * as React from "react"
++import * as ScrollAreaPrimitive from "@radix-ui/react-scroll-area"
++
++import { cn } from "@/lib/utils"
++
++function ScrollArea({
++  className,
++  children,
++  ...props
++}: React.ComponentProps<typeof ScrollAreaPrimitive.Root>) {
++  return (
++    <ScrollAreaPrimitive.Root
++      data-slot="scroll-area"
++      className={cn("relative", className)}
++      {...props}
++    >
++      <ScrollAreaPrimitive.Viewport
++        data-slot="scroll-area-viewport"
++        className="focus-visible:ring-ring/50 size-full rounded-[inherit] transition-[color,box-shadow] outline-none focus-visible:ring-[3px] focus-visible:outline-1"
++      >
++        {children}
++      </ScrollAreaPrimitive.Viewport>
++      <ScrollBar />
++      <ScrollAreaPrimitive.Corner />
++    </ScrollAreaPrimitive.Root>
++  )
++}
++
++function ScrollBar({
++  className,
++  orientation = "vertical",
++  ...props
++}: React.ComponentProps<typeof ScrollAreaPrimitive.ScrollAreaScrollbar>) {
++  return (
++    <ScrollAreaPrimitive.ScrollAreaScrollbar
++      data-slot="scroll-area-scrollbar"
++      orientation={orientation}
++      className={cn(
++        "flex touch-none p-px transition-colors select-none",
++        orientation === "vertical" &&
++          "h-full w-2.5 border-l border-l-transparent",
++        orientation === "horizontal" &&
++          "h-2.5 flex-col border-t border-t-transparent",
++        className
++      )}
++      {...props}
++    >
++      <ScrollAreaPrimitive.ScrollAreaThumb
++        data-slot="scroll-area-thumb"
++        className="bg-border relative flex-1 rounded-full"
++      />
++    </ScrollAreaPrimitive.ScrollAreaScrollbar>
++  )
++}
++
++export { ScrollArea, ScrollBar }
+diff --git a/src/index.css b/src/index.css
+index e088a50..65c3077 100644
+--- a/src/index.css
++++ b/src/index.css
+@@ -19,7 +19,7 @@
+   --color-card-foreground: var(--card-foreground);
+   --color-popover: var(--popover);
+   --color-popover-foreground: var(--popover-foreground);
+-  --color-primary: var(--primary);
++  --color-primary: var(--nc-blue);
+   --color-primary-foreground: var(--primary-foreground);
+   --color-secondary: var(--secondary);
+   --color-secondary-foreground: var(--secondary-foreground);
+diff --git a/src/layouts/DashboardLayout.tsx b/src/layouts/DashboardLayout.tsx
+deleted file mode 100644
+index 994b08a..0000000
+--- a/src/layouts/DashboardLayout.tsx
++++ /dev/null
+@@ -1,15 +0,0 @@
+-import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
+-import { AppSidebar } from "@/components/app-sidebar";
+-import { Outlet } from "react-router";
+-
+-export default function DashboardLayout() {
+-  return (
+-    <SidebarProvider defaultOpen={true}>
+-      <AppSidebar />
+-      <main className="w-full min-h-screen px-4 py-4">
+-        <SidebarTrigger className="scale-125" />
+-        <Outlet />
+-      </main>
+-    </SidebarProvider>
+-  );
+-}
+diff --git a/src/layouts/MainLayout.tsx b/src/layouts/MainLayout.tsx
+new file mode 100644
+index 0000000..eb80e8f
+--- /dev/null
++++ b/src/layouts/MainLayout.tsx
+@@ -0,0 +1,27 @@
++import { SidebarProvider } from "@/components/ui/sidebar";
++import { AppSidebar } from "@/components/app-sidebar";
++import { Outlet, useLocation } from "react-router";
++
++export default function MainLayout() {
++  const { pathname } = useLocation();
++
++  return (
++    <SidebarProvider defaultOpen={true}>
++      <AppSidebar />
++      <main className="w-full min-h-screen px-4 py-4 flex flex-col">
++        {/* <div className="flex items-center gap-4">
++          <SidebarTrigger className="scale-125" />
++          <p className="font-medium text-xl">
++            {pathname.slice(1).toUpperCase()}
++          </p>
++        </div> */}
++
++        {/* <Separator className="mt-2 mb-4" /> */}
++
++        <div className="flex-1">
++          <Outlet />
++        </div>
++      </main>
++    </SidebarProvider>
++  );
++}
+diff --git a/src/lib/api.ts b/src/lib/api.ts
+index 5314269..39d9c33 100644
+--- a/src/lib/api.ts
++++ b/src/lib/api.ts
+@@ -2,5 +2,5 @@ import axios from "axios";
+ 
+ export const api = axios.create({
+   baseURL: import.meta.env.VITE_API_URL,
+-  withCredentials: true, // send cookies
++  withCredentials: true,
+ });
+diff --git a/src/main.tsx b/src/main.tsx
+index 3a74592..22ad3d2 100644
+--- a/src/main.tsx
++++ b/src/main.tsx
+@@ -1,13 +1,10 @@
+-import { StrictMode } from "react";
+ import { createRoot } from "react-dom/client";
+ import "./index.css";
+ import App from "./App";
+ import { BrowserRouter } from "react-router";
+ 
+ createRoot(document.getElementById("root")!).render(
+-  <StrictMode>
+-    <BrowserRouter>
+-      <App />
+-    </BrowserRouter>
+-  </StrictMode>,
++  <BrowserRouter>
++    <App />
++  </BrowserRouter>,
+ );
+diff --git a/src/pages/LoginPage.tsx b/src/pages/LoginPage.tsx
+index ca9d5f7..18c1877 100644
+--- a/src/pages/LoginPage.tsx
++++ b/src/pages/LoginPage.tsx
+@@ -21,7 +21,7 @@ export default function LoginPage() {
+     try {
+       const res = await api.post("/auth/login", loginData);
+       if (res.status === 200) navigate("/dashboard");
+-    } catch (e: any) {
++    } catch (e) {
+       setError(e.response.data);
+     }
+ 
+@@ -76,7 +76,7 @@ export default function LoginPage() {
+ 
+           <button
+             type="submit"
+-            className="cursor-pointer w-full mt-4 bg-[#2f6fb2] text-white py-2 rounded-md font-medium hover:bg-[#285f98] transition"
++            className="cursor-pointer w-full mt-4 bg-[#2f6fb2] text-white py-2 roundedp font-medium hover:bg-[#285f98] transition"
+           >
+             Login
+           </button>
+diff --git a/src/pages/handbook/index.tsx b/src/pages/handbook/index.tsx
+new file mode 100644
+index 0000000..280a6c4
+--- /dev/null
++++ b/src/pages/handbook/index.tsx
+@@ -0,0 +1,166 @@
++import { useEffect, useRef, useState, type FormEvent } from "react";
++import { Button } from "../../components/ui/button";
++import {
++  Dialog,
++  DialogClose,
++  DialogContent,
++  DialogDescription,
++  DialogFooter,
++  DialogHeader,
++  DialogTitle,
++  DialogTrigger,
++} from "../../components/ui/dialog";
++import { Input } from "../../components/ui/input";
++import { Label } from "../../components/ui/label";
++import { DndContext, type DragEndEvent } from "@dnd-kit/core";
++import { arrayMove, SortableContext } from "@dnd-kit/sortable";
++import SortableSection from "../../components/SortableSection";
++import { ScrollArea } from "../../components/ui/scroll-area";
++import { api } from "../../lib/api";
++import { Separator } from "../../components/ui/separator";
++import { Link } from "react-router";
++
++interface Section {
++  _id: string;
++  title: string;
++  order: number;
++}
++
++const Handbook = () => {
++  const [sections, setSections] = useState<Section[]>([]);
++  const firstMount = useRef(true);
++
++  useEffect(() => {
++    api.get("sections").then((data) => {
++      setSections(data.data.sections);
++    });
++  }, []);
++
++  useEffect(() => {
++    if (sections.length == 0) return;
++
++    if (firstMount.current) {
++      firstMount.current = false;
++      return;
++    }
++
++    function updateOrder() {
++      sections.forEach(async (section, index) => {
++        await api.patch(`/sections/${section._id}`, {
++          order: index + 1,
++        });
++      });
++    }
++
++    updateOrder();
++  }, [sections]);
++
++  async function handleSubmit(e: FormEvent) {
++    e.preventDefault();
++    const form = e.currentTarget;
++    const formData = new FormData(form as HTMLFormElement);
++    const { title } = Object.fromEntries(formData.entries());
++
++    const res = await api.post("sections", { title });
++    setSections([...sections, res.data.section]);
++  }
++
++  function handleDragEnd(event: DragEndEvent) {
++    const { active, over } = event;
++
++    if (active.id == over?.id) return;
++
++    const activeIndex = sections.findIndex((s) => s._id == active?.id);
++    const overIndex = sections.findIndex((s) => s._id == over?.id);
++
++    setSections(arrayMove(sections, activeIndex, overIndex));
++  }
++
++  async function handleDelete(id: string) {
++    await api.delete(`/sections/${id}`);
++    const updatedSections = sections.filter((s) => s._id !== id);
++    setSections(updatedSections);
++  }
++
++  return (
++    <div className="w-full h-full flex gap-4">
++      {/* section container */}
++      <div className="flex-1 h-full flex flex-col gap-4">
++        <div className="border rounded p-1 flex flex-col gap-2">
++          <ScrollArea className="w-full h-105 border p-1 bg-nc-blue/10">
++            <DndContext onDragEnd={handleDragEnd}>
++              <SortableContext items={sections.map((s) => s._id)}>
++                <div className="grid grid-cols-4 auto-rows-[100px] w-full h-full rounded p-4 gap-4">
++                  {/* SECTIONS MAPPP */}
++                  {sections.map((s, index) => (
++                    <div key={index}>
++                      <SortableSection section={s}>
++                        <div className="p-4 text font-medium text-foreground w-full h-full rounded shadow bg-white flex">
++                          <p className="flex-1 text-sm">{s.title}</p>
++
++                          <Separator orientation="vertical" className="mx-2" />
++                          <div className="w-12 space-y-2 h-full">
++                            <Button className="w-full text-xs" size={"sm"}>
++                              <Link
++                                to={`/handbook/${s._id}`}
++                                className="w-full"
++                              >
++                                Edit
++                              </Link>
++                            </Button>
++                            <Button
++                              type="button"
++                              onClick={() => handleDelete(s._id)}
++                              className="w-full text-xs cursor-pointer"
++                              size={"sm"}
++                              variant={"destructive"}
++                            >
++                              Delete
++                            </Button>
++                          </div>
++                        </div>
++                      </SortableSection>
++                    </div>
++                  ))}
++                </div>
++              </SortableContext>
++            </DndContext>
++          </ScrollArea>
++        </div>
++        <Dialog>
++          <DialogTrigger asChild>
++            <Button className="w-full rounded" size="lg">
++              Create New Section
++            </Button>
++          </DialogTrigger>
++          <DialogContent className="sm:max-w-sm rounded">
++            <form onSubmit={handleSubmit} className="space-y-4">
++              <DialogHeader>
++                <DialogTitle>Create Section</DialogTitle>
++                <DialogDescription>
++                  Enter the Section name here. Click save when you&apos;re done.
++                </DialogDescription>
++              </DialogHeader>
++              <div className="grid gap-4">
++                <div className="grid gap-3">
++                  <Label htmlFor="title">Section Name</Label>
++                  <Input id="title" name="title" />
++                </div>
++              </div>
++              <DialogFooter>
++                <DialogClose asChild>
++                  <Button variant="outline">Cancel</Button>
++                </DialogClose>
++                <DialogClose asChild>
++                  <Button type="submit">Create Section</Button>
++                </DialogClose>
++              </DialogFooter>
++            </form>
++          </DialogContent>
++        </Dialog>
++      </div>
++    </div>
++  );
++};
++
++export default Handbook;
+diff --git a/src/pages/handbook/show.tsx b/src/pages/handbook/show.tsx
+new file mode 100644
+index 0000000..2946d9b
+--- /dev/null
++++ b/src/pages/handbook/show.tsx
+@@ -0,0 +1,11 @@
++import { useParams } from "react-router";
++
++const Show = () => {
++  const { id } = useParams();
++
++  console.log(id);
++
++  return <div>{id && id}</div>;
++};
++
++export default Show;

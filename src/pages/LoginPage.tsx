@@ -21,7 +21,7 @@ export default function LoginPage() {
     try {
       const res = await api.post("/auth/login", loginData);
       if (res.status === 200) navigate("/dashboard");
-    } catch (e: any) {
+    } catch (e) {
       setError(e.response.data);
     }
 
@@ -76,7 +76,7 @@ export default function LoginPage() {
 
           <button
             type="submit"
-            className="cursor-pointer w-full mt-4 bg-[#2f6fb2] text-white py-2 rounded-md font-medium hover:bg-[#285f98] transition"
+            className="cursor-pointer w-full mt-4 bg-[#2f6fb2] text-white py-2 roundedp font-medium hover:bg-[#285f98] transition"
           >
             Login
           </button>
