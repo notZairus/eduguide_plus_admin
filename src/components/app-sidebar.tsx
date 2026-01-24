@@ -76,7 +76,7 @@ export function AppSidebar() {
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton
                     asChild
-                    isActive={item.url.includes(pathname)}
+                    isActive={pathname.startsWith(item.url)}
                     className="rounded transition-all"
                   >
                     <Link to={item.url}>

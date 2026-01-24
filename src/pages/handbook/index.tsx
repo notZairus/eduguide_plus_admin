@@ -90,7 +90,7 @@ const Handbook = () => {
           <ScrollArea className="w-full h-105 border p-1 bg-nc-blue/10">
             <DndContext onDragEnd={handleDragEnd}>
               <SortableContext items={sections.map((s) => s._id)}>
-                <div className="grid grid-cols-4 auto-rows-[100px] w-full h-full rounded p-4 gap-4">
+                <div className="grid grid-cols-4 auto-rows-[100px] w-full h-full rounded p-4 gap-4 gap-y-8 ">
                   {/* SECTIONS MAPPP */}
                   {sections.map((s, index) => (
                     <div key={index}>
