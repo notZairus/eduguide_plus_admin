@@ -13,7 +13,11 @@ import {
 import { Input } from "../../components/ui/input";
 import { Label } from "../../components/ui/label";
 import { DndContext, type DragEndEvent } from "@dnd-kit/core";
-import { arrayMove, SortableContext } from "@dnd-kit/sortable";
+import {
+  arrayMove,
+  SortableContext,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
 import SortableSection from "../../components/SortableSection";
 import { ScrollArea } from "../../components/ui/scroll-area";
 import { api } from "../../lib/api";
@@ -87,10 +91,13 @@ const Handbook = () => {
       {/* section container */}
       <div className="flex-1 h-full flex flex-col gap-4">
         <div className="border rounded p-1 flex flex-col gap-2">
-          <ScrollArea className="w-full h-105 border p-1 bg-nc-blue/10">
+          <ScrollArea className="w-1/4 h-120 border p-1 bg-nc-blue/10">
             <DndContext onDragEnd={handleDragEnd}>
-              <SortableContext items={sections.map((s) => s._id)}>
-                <div className="grid grid-cols-4 auto-rows-[100px] w-full h-full rounded p-4 gap-4 gap-y-8 ">
+              <SortableContext
+                items={sections.map((s) => s._id)}
+                strategy={verticalListSortingStrategy}
+              >
+                <div className="rounded p-4 gap-4 gap-y-8 space-y-4">
                   {/* SECTIONS MAPPP */}
                   {sections.map((s, index) => (
                     <div key={index}>
