@@ -7,7 +7,7 @@ export default function MainLayout() {
 
   return (
     <SidebarProvider defaultOpen={true}>
-      <AppSidebar />
+      <AppSidebar className="z-50" />
       <main className="w-full min-h-screen px-4 py-4 flex flex-col">
         {/* <div className="flex items-center gap-4">
           <SidebarTrigger className="scale-125" />

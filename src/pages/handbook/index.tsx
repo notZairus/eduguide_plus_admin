@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { Button } from "../../components/ui/button";
+import { Separator } from "../../components/ui/separator";
 import {
   Dialog,
   DialogClose,
@@ -18,27 +19,42 @@ import {
   SortableContext,
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
-import SortableSection from "../../components/SortableSection";
+import SortableTopic from "../../components/SortableTopic";
 import { ScrollArea } from "../../components/ui/scroll-area";
 import { api } from "../../lib/api";
-import { Separator } from "../../components/ui/separator";
 import { Link } from "react-router";
-
-interface Section {
-  _id: string;
-  title: string;
-  order: number;
-}
+import Topic from "../../components/Topic";
 
 const Handbook = () => {
+  const [topics, setTopics] = useState<Topic[]>([]);
+  const [activeTopic, setActiveTopic] = useState<Topic | null>(null);
   const [sections, setSections] = useState<Section[]>([]);
   const firstMount = useRef(true);
 
   useEffect(() => {
-    api.get("sections").then((data) => {
-      setSections(data.data.sections);
+    api.get("/topics").then((res) => {
+      setTopics(res.data.topics);
     });
-  }, []);
+  }, [activeTopic, sections]);
+
+  useEffect(() => {
+    if (topics.length == 0) return;
+
+    if (firstMount.current) {
+      firstMount.current = false;
+      return;
+    }
+
+    function updateOrder() {
+      topics.forEach(async (topic, index) => {
+        await api.patch(`/topics/${topic._id}`, {
+          order: index + 1,
+        });
+      });
+    }
+
+    updateOrder();
+  }, [topics]);
 
   useEffect(() => {
     if (sections.length == 0) return;
@@ -48,7 +64,7 @@ const Handbook = () => {
       return;
     }
 
-    function updateOrder() {
+    function updateSectionOrder() {
       sections.forEach(async (section, index) => {
         await api.patch(`/sections/${section._id}`, {
           order: index + 1,
@@ -56,7 +72,7 @@ const Handbook = () => {
       });
     }
 
-    updateOrder();
+    updateSectionOrder();
   }, [sections]);
 
   async function handleSubmit(e: FormEvent) {
@@ -65,8 +81,8 @@ const Handbook = () => {
     const formData = new FormData(form as HTMLFormElement);
     const { title } = Object.fromEntries(formData.entries());
 
-    const res = await api.post("sections", { title });
-    setSections([...sections, res.data.section]);
+    const res = await api.post("/topics", { title });
+    setTopics([...topics, res.data.topic]);
   }
 
   function handleDragEnd(event: DragEndEvent) {
@@ -74,83 +90,110 @@ const Handbook = () => {
 
     if (active.id == over?.id) return;
 
-    const activeIndex = sections.findIndex((s) => s._id == active?.id);
-    const overIndex = sections.findIndex((s) => s._id == over?.id);
+    const activeIndex = topics.findIndex((s) => s._id == active?.id);
+    const overIndex = topics.findIndex((s) => s._id == over?.id);
 
-    setSections(arrayMove(sections, activeIndex, overIndex));
+    setTopics(arrayMove(topics, activeIndex, overIndex));
   }
 
   async function handleDelete(id: string) {
-    await api.delete(`/sections/${id}`);
-    const updatedSections = sections.filter((s) => s._id !== id);
-    setSections(updatedSections);
+    await api.delete(`/topics/${id}`);
+    const updatedTopics = topics.filter((s) => s._id !== id);
+    if (activeTopic?._id === id) {
+      setActiveTopic(null);
+    }
+    setTopics(updatedTopics);
   }
 
   return (
-    <div className="w-full h-full flex gap-4">
-      {/* section container */}
-      <div className="flex-1 h-full flex flex-col gap-4">
-        <div className="border rounded p-1 flex flex-col gap-2">
-          <ScrollArea className="w-1/4 h-120 border p-1 bg-nc-blue/10">
-            <DndContext onDragEnd={handleDragEnd}>
-              <SortableContext
-                items={sections.map((s) => s._id)}
-                strategy={verticalListSortingStrategy}
-              >
-                <div className="rounded p-4 gap-4 gap-y-8 space-y-4">
-                  {/* SECTIONS MAPPP */}
-                  {sections.map((s, index) => (
-                    <div key={index}>
-                      <SortableSection section={s}>
-                        <div className="p-4 text font-medium text-foreground w-full h-full rounded shadow bg-white flex">
-                          <p className="flex-1 text-sm">{s.title}</p>
+    <div className="w-full h-full flex items-start relative">
+      <div className="w-56 h-full flex flex-col gap-4 fixed">
+        <ScrollArea className="h-120 border bg-nc-blue/10 p-2 rounded ">
+          <DndContext onDragEnd={handleDragEnd}>
+            <SortableContext
+              items={topics.map((t) => t._id)}
+              strategy={verticalListSortingStrategy}
+            >
+              <div className="space-y-4">
+                {topics.map((t, index) => (
+                  <div key={index}>
+                    <SortableTopic topic={t}>
+                      <div className="rounded shadow bg-background py-4 px-3">
+                        <div
+                          className="text font-medium text-foreground w-full h-full  flex  justify-between cursor-pointer gap-2"
+                          onClick={() => {
+                            setActiveTopic(t);
+                            setSections(t.sections);
+                          }}
+                        >
+                          <p className="flex-1 w-20 wrap-break-word text-sm">
+                            {t.title}
+                          </p>
 
-                          <Separator orientation="vertical" className="mx-2" />
-                          <div className="w-12 space-y-2 h-full">
-                            <Button className="w-full text-xs" size={"sm"}>
+                          <div className="space-y-1 w-20 h-full flex flex-col">
+                            <Button size="sm">
                               <Link
-                                to={`/handbook/${s._id}`}
+                                to={`/handbook/${t._id}`}
                                 className="w-full"
                               >
                                 Edit
                               </Link>
                             </Button>
                             <Button
-                              type="button"
-                              onClick={() => handleDelete(s._id)}
-                              className="w-full text-xs cursor-pointer"
-                              size={"sm"}
-                              variant={"destructive"}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleDelete(t._id);
+                              }}
+                              variant="destructive"
+                              size="sm"
                             >
                               Delete
                             </Button>
                           </div>
                         </div>
-                      </SortableSection>
-                    </div>
-                  ))}
-                </div>
-              </SortableContext>
-            </DndContext>
-          </ScrollArea>
-        </div>
+
+                        {t.sections.length > 0 && (
+                          <>
+                            <Separator className="my-4" />
+
+                            <div className="">
+                              <ul className="space-y-1">
+                                {t.sections.map((s) => (
+                                  <li className="text-xs text-gray-400 underline decoration-gray-400 underlne">
+                                    <Link to={`/handbook/sections/${s._id}`}>
+                                      {s.title}
+                                    </Link>
+                                  </li>
+                                ))}
+                              </ul>
+                            </div>
+                          </>
+                        )}
+                      </div>
+                    </SortableTopic>
+                  </div>
+                ))}
+              </div>
+            </SortableContext>
+          </DndContext>
+        </ScrollArea>
         <Dialog>
           <DialogTrigger asChild>
             <Button className="w-full rounded" size="lg">
-              Create New Section
+              Create New Topic
             </Button>
           </DialogTrigger>
           <DialogContent className="sm:max-w-sm rounded">
             <form onSubmit={handleSubmit} className="space-y-4">
               <DialogHeader>
-                <DialogTitle>Create Section</DialogTitle>
+                <DialogTitle>Create Topic</DialogTitle>
                 <DialogDescription>
-                  Enter the Section name here. Click save when you&apos;re done.
+                  Enter the Topic title here. Click save when you&apos;re done.
                 </DialogDescription>
               </DialogHeader>
               <div className="grid gap-4">
                 <div className="grid gap-3">
-                  <Label htmlFor="title">Section Name</Label>
+                  <Label htmlFor="title">Topic Title</Label>
                   <Input id="title" name="title" />
                 </div>
               </div>
@@ -159,12 +202,26 @@ const Handbook = () => {
                   <Button variant="outline">Cancel</Button>
                 </DialogClose>
                 <DialogClose asChild>
-                  <Button type="submit">Create Section</Button>
+                  <Button type="submit">Create Topic</Button>
                 </DialogClose>
               </DialogFooter>
             </form>
           </DialogContent>
         </Dialog>
+      </div>
+      <div className="w-full h-full ml-60 p-2">
+        {activeTopic ? (
+          <Topic
+            topic={activeTopic as Topic}
+            setActiveTopic={setActiveTopic}
+            sections={sections}
+            setSections={setSections}
+          />
+        ) : (
+          <div className="w-full h-full flex items-center justify-center text-3xl text-foreground/40 font-medium">
+            No Topic Selected.
+          </div>
+        )}
       </div>
     </div>
   );
