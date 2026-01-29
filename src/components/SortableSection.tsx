@@ -15,6 +15,7 @@ import {
   DialogClose,
   DialogFooter,
 } from "./ui/dialog";
+import { Link } from "react-router";
 
 const SortableSection = ({
   section,
@@ -89,7 +90,9 @@ const SortableSection = ({
             <Eye size={20} className="text-nc-blue cursor-pointer" />
           </div>
           <div className="w-8 cursor-pointer rounded flex items-center justify-center">
-            <Pencil size={20} className="text-green-500 cursor-pointer" />
+            <Link to={`/handbook/sections/${section._id}`}>
+              <Pencil size={20} className="text-green-500 cursor-pointer" />
+            </Link>
           </div>
           <div className="w-8 cursor-pointer rounded flex items-center justify-center">
             <Trash2

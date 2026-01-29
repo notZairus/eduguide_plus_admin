@@ -45,7 +45,7 @@ const Handbook = () => {
       return;
     }
 
-    function updateOrder() {
+    function updateTopicOrder() {
       topics.forEach(async (topic, index) => {
         await api.patch(`/topics/${topic._id}`, {
           order: index + 1,
@@ -53,7 +53,7 @@ const Handbook = () => {
       });
     }
 
-    updateOrder();
+    updateTopicOrder();
   }, [topics]);
 
   useEffect(() => {
@@ -75,7 +75,7 @@ const Handbook = () => {
     updateSectionOrder();
   }, [sections]);
 
-  async function handleSubmit(e: FormEvent) {
+  async function handleCreateTopic(e: FormEvent) {
     e.preventDefault();
     const form = e.currentTarget;
     const formData = new FormData(form as HTMLFormElement);
@@ -184,7 +184,7 @@ const Handbook = () => {
             </Button>
           </DialogTrigger>
           <DialogContent className="sm:max-w-sm rounded">
-            <form onSubmit={handleSubmit} className="space-y-4">
+            <form onSubmit={handleCreateTopic} className="space-y-4">
               <DialogHeader>
                 <DialogTitle>Create Topic</DialogTitle>
                 <DialogDescription>
