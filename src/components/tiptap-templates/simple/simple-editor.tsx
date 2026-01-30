@@ -1,14 +1,10 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-import {
-  EditorContent,
-  EditorContext,
-  generateHTML,
-  useEditor,
-} from "@tiptap/react";
+import { useRef, useState } from "react";
+import { EditorContent, EditorContext, useEditor } from "@tiptap/react";
 
 // --- Tiptap Core Extensions ---
+import { TableKit } from "@tiptap/extension-table";
 import { StarterKit } from "@tiptap/starter-kit";
 import { Image } from "@tiptap/extension-image";
 import { TaskItem, TaskList } from "@tiptap/extension-list";
@@ -18,6 +14,7 @@ import { Highlight } from "@tiptap/extension-highlight";
 import { Subscript } from "@tiptap/extension-subscript";
 import { Superscript } from "@tiptap/extension-superscript";
 import { Selection } from "@tiptap/extensions";
+import { Edit, Table } from "lucide-react";
 
 // --- UI Primitives ---
 import { Button } from "../../../components/tiptap-ui-primitive/button";
@@ -43,13 +40,8 @@ import { HeadingDropdownMenu } from "../../../components/tiptap-ui/heading-dropd
 import { ListDropdownMenu } from "../../../components/tiptap-ui/list-dropdown-menu";
 import { BlockquoteButton } from "../../../components/tiptap-ui/blockquote-button";
 import { CodeBlockButton } from "../../../components/tiptap-ui/code-block-button";
+import { ColorHighlightPopoverContent } from "../../../components/tiptap-ui/color-highlight-popover";
 import {
-  ColorHighlightPopover,
-  ColorHighlightPopoverContent,
-  ColorHighlightPopoverButton,
-} from "../../../components/tiptap-ui/color-highlight-popover";
-import {
-  LinkPopover,
   LinkContent,
   LinkButton,
 } from "../../../components/tiptap-ui/link-popover";
@@ -67,16 +59,24 @@ import { useIsBreakpoint } from "../../../hooks/use-is-breakpoint";
 import { useWindowSize } from "../../../hooks/use-window-size";
 import { useCursorVisibility } from "../../../hooks/use-cursor-visibility";
 
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+
 // --- Styles ---
 import "@/components/tiptap-templates/simple/simple-editor.scss";
 
-import content from "../../../components/tiptap-templates/simple/data/content.json";
-
 const MainToolbarContent = ({
-  onHighlighterClick,
+  editor,
   onLinkClick,
   isMobile,
 }: {
+  editor;
   onHighlighterClick: () => void;
   onLinkClick: () => void;
   isMobile: boolean;
@@ -119,6 +119,131 @@ const MainToolbarContent = ({
         <TextAlignButton align="right" />
         <TextAlignButton align="justify" />
       </ToolbarGroup>
+      <ToolbarSeparator />
+      <ToolbarGroup>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <button className="bg-white p-2 aspect-square hover:bg-[#eaeaeb] rounded-lg ">
+              <Table size={16} className="text-gray-500" />
+            </button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent className="rounded-xl shadow-xl">
+            <DropdownMenuGroup>
+              <DropdownMenuLabel>Table Options</DropdownMenuLabel>
+            </DropdownMenuGroup>
+
+            <DropdownMenuSeparator />
+            <DropdownMenuGroup>
+              <div className="grid grid-cols-3 gap-2">
+                <Button
+                  onClick={() =>
+                    editor
+                      .chain()
+                      .focus()
+                      .insertTable({ rows: 3, cols: 3, withHeaderRow: true })
+                      .run()
+                  }
+                >
+                  Insert table
+                </Button>
+                <Button
+                  onClick={() => editor.chain().focus().deleteTable().run()}
+                >
+                  Delete table
+                </Button>
+                <Button
+                  onClick={() => editor.chain().focus().addColumnBefore().run()}
+                >
+                  Add column before
+                </Button>
+                <Button
+                  onClick={() => editor.chain().focus().addColumnAfter().run()}
+                >
+                  Add column after
+                </Button>
+                <Button
+                  onClick={() => editor.chain().focus().deleteColumn().run()}
+                >
+                  Delete column
+                </Button>
+                <Button
+                  onClick={() => editor.chain().focus().addRowBefore().run()}
+                >
+                  Add row before
+                </Button>
+                <Button
+                  onClick={() => editor.chain().focus().addRowAfter().run()}
+                >
+                  Add row after
+                </Button>
+                <Button
+                  onClick={() => editor.chain().focus().deleteRow().run()}
+                >
+                  Delete row
+                </Button>
+                <Button
+                  onClick={() => editor.chain().focus().mergeCells().run()}
+                >
+                  Merge cells
+                </Button>
+                <Button
+                  onClick={() => editor.chain().focus().splitCell().run()}
+                >
+                  Split cell
+                </Button>
+                <Button
+                  onClick={() =>
+                    editor.chain().focus().toggleHeaderColumn().run()
+                  }
+                >
+                  Toggle header column
+                </Button>
+                <Button
+                  onClick={() => editor.chain().focus().toggleHeaderRow().run()}
+                >
+                  Toggle header row
+                </Button>
+                <Button
+                  onClick={() =>
+                    editor.chain().focus().toggleHeaderCell().run()
+                  }
+                >
+                  Toggle header cell
+                </Button>
+                <Button
+                  onClick={() => editor.chain().focus().mergeOrSplit().run()}
+                >
+                  Merge or split
+                </Button>
+                <Button
+                  onClick={() =>
+                    editor.chain().focus().setCellAttribute("colspan", 2).run()
+                  }
+                >
+                  Set cell attribute
+                </Button>
+                <Button
+                  onClick={() => editor.chain().focus().fixTables().run()}
+                >
+                  Fix tables
+                </Button>
+                <Button
+                  onClick={() => editor.chain().focus().goToNextCell().run()}
+                >
+                  Go to next cell
+                </Button>
+                <Button
+                  onClick={() =>
+                    editor.chain().focus().goToPreviousCell().run()
+                  }
+                >
+                  Go to previous cell
+                </Button>
+              </div>
+            </DropdownMenuGroup>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </ToolbarGroup>
 
       <Spacer />
       {isMobile && <ToolbarSeparator />}
@@ -155,7 +280,7 @@ const MobileToolbarContent = ({
   </>
 );
 
-export function SimpleEditor() {
+export function SimpleEditor({ content, setContent }) {
   const isMobile = useIsBreakpoint();
   const { height } = useWindowSize();
   const [mobileView, setMobileView] = useState<"main" | "highlighter" | "link">(
@@ -175,6 +300,9 @@ export function SimpleEditor() {
       },
     },
     extensions: [
+      TableKit.configure({
+        table: { resizable: true },
+      }),
       StarterKit.configure({
         horizontalRule: false,
         link: {
@@ -193,18 +321,18 @@ export function SimpleEditor() {
       Subscript,
       Selection,
     ],
+    content: content ? content : null,
+    onUpdate: ({ editor }) => {
+      const json = editor.getJSON();
+      setContent(json);
+    },
   });
 
   const rect = useCursorVisibility({
     editor,
-    overlayHeight: toolbarRef.current?.getBoundingClientRect().height ?? 0,
+    // overlayHeight: toolbarRef.current?.getBoundingClientRect().height ?? 0,
+    overlayHeight: 0,
   });
-
-  useEffect(() => {
-    if (!isMobile && mobileView !== "main") {
-      setMobileView("main");
-    }
-  }, [isMobile, mobileView]);
 
   return (
     <div className="simple-editor-wrapper">
@@ -221,6 +349,7 @@ export function SimpleEditor() {
         >
           {mobileView === "main" ? (
             <MainToolbarContent
+              editor={editor}
               onHighlighterClick={() => setMobileView("highlighter")}
               onLinkClick={() => setMobileView("link")}
               isMobile={isMobile}

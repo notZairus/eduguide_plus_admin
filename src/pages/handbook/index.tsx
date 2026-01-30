@@ -29,51 +29,15 @@ const Handbook = () => {
   const [topics, setTopics] = useState<Topic[]>([]);
   const [activeTopic, setActiveTopic] = useState<Topic | null>(null);
   const [sections, setSections] = useState<Section[]>([]);
-  const firstMount = useRef(true);
 
   useEffect(() => {
-    api.get("/topics").then((res) => {
+    async function fetchTopics() {
+      const res = await api.get("/topics");
       setTopics(res.data.topics);
-    });
+    }
+
+    fetchTopics();
   }, [activeTopic, sections]);
-
-  useEffect(() => {
-    if (topics.length == 0) return;
-
-    if (firstMount.current) {
-      firstMount.current = false;
-      return;
-    }
-
-    function updateTopicOrder() {
-      topics.forEach(async (topic, index) => {
-        await api.patch(`/topics/${topic._id}`, {
-          order: index + 1,
-        });
-      });
-    }
-
-    updateTopicOrder();
-  }, [topics]);
-
-  useEffect(() => {
-    if (sections.length == 0) return;
-
-    if (firstMount.current) {
-      firstMount.current = false;
-      return;
-    }
-
-    function updateSectionOrder() {
-      sections.forEach(async (section, index) => {
-        await api.patch(`/sections/${section._id}`, {
-          order: index + 1,
-        });
-      });
-    }
-
-    updateSectionOrder();
-  }, [sections]);
 
   async function handleCreateTopic(e: FormEvent) {
     e.preventDefault();
@@ -93,7 +57,15 @@ const Handbook = () => {
     const activeIndex = topics.findIndex((s) => s._id == active?.id);
     const overIndex = topics.findIndex((s) => s._id == over?.id);
 
-    setTopics(arrayMove(topics, activeIndex, overIndex));
+    const newTopicOrder = arrayMove(topics, activeIndex, overIndex);
+
+    newTopicOrder.forEach(async (topic, index) => {
+      await api.patch(`/topics/${topic._id}`, {
+        order: index + 1,
+      });
+    });
+
+    setTopics(newTopicOrder);
   }
 
   async function handleDelete(id: string) {
@@ -120,7 +92,7 @@ const Handbook = () => {
                     <SortableTopic topic={t}>
                       <div className="rounded shadow bg-background py-4 px-3">
                         <div
-                          className="text font-medium text-foreground w-full h-full  flex  justify-between cursor-pointer gap-2"
+                          className="text font-medium text-foreground w-full h-full  flex items-center justify-between cursor-pointer gap-2"
                           onClick={() => {
                             setActiveTopic(t);
                             setSections(t.sections);
@@ -130,25 +102,43 @@ const Handbook = () => {
                             {t.title}
                           </p>
 
-                          <div className="space-y-1 w-20 h-full flex flex-col">
-                            <Button size="sm">
-                              <Link
-                                to={`/handbook/${t._id}`}
-                                className="w-full"
-                              >
-                                Edit
-                              </Link>
-                            </Button>
-                            <Button
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleDelete(t._id);
-                              }}
-                              variant="destructive"
-                              size="sm"
-                            >
-                              Delete
-                            </Button>
+                          <div className="space-y-1 h-full flex flex-col">
+                            <Dialog>
+                              <DialogTrigger asChild>
+                                <p className="text-xs text-destructive ">
+                                  Delete
+                                </p>
+                              </DialogTrigger>
+                              <DialogContent>
+                                <DialogHeader>Delete Topic</DialogHeader>
+                                <DialogDescription>
+                                  Lorem ipsum dolor sit amet, consectetur
+                                  adipisicing elit. Placeat repellendus
+                                  asperiores at assumenda aperiam, odit ad! Ut
+                                  earum aliquam nobis, dolores iste reiciendis
+                                  quasi voluptate, vel, eveniet temporibus sunt
+                                  tempore.
+                                  {/* TODO fix the content */}
+                                </DialogDescription>
+                                <DialogFooter>
+                                  <DialogClose asChild>
+                                    <Button variant="outline">Cancel</Button>
+                                  </DialogClose>
+                                  <DialogClose asChild>
+                                    <Button
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleDelete(t._id);
+                                      }}
+                                      type="submit"
+                                      variant={"destructive"}
+                                    >
+                                      Delete Topic
+                                    </Button>
+                                  </DialogClose>
+                                </DialogFooter>
+                              </DialogContent>
+                            </Dialog>
                           </div>
                         </div>
 
@@ -159,7 +149,10 @@ const Handbook = () => {
                             <div className="">
                               <ul className="space-y-1">
                                 {t.sections.map((s) => (
-                                  <li className="text-xs text-gray-400 underline decoration-gray-400 underlne">
+                                  <li
+                                    key={s._id}
+                                    className="text-xs text-gray-400 underline decoration-gray-400 underlne"
+                                  >
                                     <Link to={`/handbook/sections/${s._id}`}>
                                       {s.title}
                                     </Link>

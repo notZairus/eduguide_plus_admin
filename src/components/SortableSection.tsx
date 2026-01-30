@@ -56,15 +56,15 @@ const SortableSection = ({
                   className="space-y-4"
                 >
                   <DialogHeader>
-                    <DialogTitle>Edit Topic</DialogTitle>
+                    <DialogTitle>Edit Section</DialogTitle>
                     <DialogDescription>
-                      Update the topic title here. Click save when you&apos;re
+                      Update the Section title here. Click save when you&apos;re
                       done.
                     </DialogDescription>
                   </DialogHeader>
                   <div className="grid gap-4">
                     <div className="grid gap-3">
-                      <Label htmlFor="title">Topic Title</Label>
+                      <Label htmlFor="title">Section Title</Label>
                       <Textarea
                         id="title"
                         name="title"
@@ -77,7 +77,7 @@ const SortableSection = ({
                       <Button variant="outline">Cancel</Button>
                     </DialogClose>
                     <DialogClose asChild>
-                      <Button type="submit">Save Topic</Button>
+                      <Button type="submit">Save Section</Button>
                     </DialogClose>
                   </DialogFooter>
                 </form>
@@ -95,11 +95,35 @@ const SortableSection = ({
             </Link>
           </div>
           <div className="w-8 cursor-pointer rounded flex items-center justify-center">
-            <Trash2
-              size={20}
-              className="text-destructive cursor-pointer"
-              onClick={() => handleDeleteSection(section._id)}
-            />
+            <Dialog>
+              <DialogTrigger asChild>
+                <Trash2 size={20} className="text-destructive cursor-pointer" />
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>Delete Section</DialogHeader>
+                <DialogDescription>
+                  Lorem ipsum dolor sit amet, consectetur adipisicing elit.
+                  Placeat repellendus asperiores at assumenda aperiam, odit ad!
+                  Ut earum aliquam nobis, dolores iste reiciendis quasi
+                  voluptate, vel, eveniet temporibus sunt tempore.
+                  {/* TODO fix the content */}
+                </DialogDescription>
+                <DialogFooter>
+                  <DialogClose asChild>
+                    <Button variant="outline">Cancel</Button>
+                  </DialogClose>
+                  <DialogClose asChild>
+                    <Button
+                      type="submit"
+                      variant={"destructive"}
+                      onClick={() => handleDeleteSection(section._id)}
+                    >
+                      Delete Topic
+                    </Button>
+                  </DialogClose>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
           </div>
         </div>
       </div>

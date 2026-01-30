@@ -10,7 +10,8 @@ interface Topic {
 interface Section {
   _id: string;
   title?: string;
-  content?: null;
+  order: number;
+  contentL: unknown;
   updatedAt?: string;
   createdAt?: string;
 }

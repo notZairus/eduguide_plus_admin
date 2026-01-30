@@ -95,12 +95,13 @@ const Topic = ({
 
     const newSectionOrder = arrayMove(sections, activeIndex, overIndex);
 
-    async function updateSectionOrder() {
-      console.log(newSectionOrder);
-    }
+    newSectionOrder.forEach(async (section, index) => {
+      await api.patch(`/sections/${section._id}`, {
+        order: index + 1,
+      });
+    });
 
     setSections(newSectionOrder);
-    await updateSectionOrder();
   }
 
   return (
