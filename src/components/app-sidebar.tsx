@@ -57,7 +57,7 @@ export function AppSidebar() {
       {state === "expanded" && (
         <SidebarHeader className="h-20">
           <div className="w-full h-full p-4 bg-nc-blue rounded shadow flex gap-4 items-center">
-            <div className="h-full aspect-square">
+            <div className="h-full aspect-square bg-white rounded-full">
               <img src={nc_logo} alt="" />
             </div>
             <div className="font-bold text-white/90">Norzagaray College</div>

@@ -280,7 +280,7 @@ const MobileToolbarContent = ({
   </>
 );
 
-export function SimpleEditor({ content, setContent }) {
+export function SimpleEditor({ content, setContent, handleSaveContent }) {
   const isMobile = useIsBreakpoint();
   const { height } = useWindowSize();
   const [mobileView, setMobileView] = useState<"main" | "highlighter" | "link">(
@@ -297,6 +297,24 @@ export function SimpleEditor({ content, setContent }) {
         autocapitalize: "off",
         "aria-label": "Main content area, start typing to enter text.",
         class: "simple-editor",
+      },
+      handleKeyDown: (view, event) => {
+        if (event.key === "Tab") {
+          event.preventDefault();
+          const { state, dispatch } = view;
+          const { from, to } = state.selection;
+
+          dispatch(state.tr.insertText("\t", from, to));
+          return true;
+        }
+
+        if (event.key.toLowerCase() === "s" && event.ctrlKey) {
+          event.preventDefault();
+          handleSaveContent();
+          return true;
+        }
+
+        return false;
       },
     },
     extensions: [
@@ -346,6 +364,7 @@ export function SimpleEditor({ content, setContent }) {
                 }
               : {}),
           }}
+          className="shadow-sm"
         >
           {mobileView === "main" ? (
             <MainToolbarContent

@@ -46,43 +46,6 @@ const SortableSection = ({
         <div className="flex-2 max-w-sm p-4 flex items-center ">
           <div className="flex items-center gap-2">
             <p className="w-full text-ellipsis">{section.title}</p>
-            <Dialog>
-              <DialogTrigger asChild>
-                <SquarePen size={24} className="text-nc-blue cursor-pointer" />
-              </DialogTrigger>
-              <DialogContent className="sm:max-w-sm rounded">
-                <form
-                  onSubmit={(e) => handleEditSectionName(e, section._id)}
-                  className="space-y-4"
-                >
-                  <DialogHeader>
-                    <DialogTitle>Edit Section</DialogTitle>
-                    <DialogDescription>
-                      Update the Section title here. Click save when you&apos;re
-                      done.
-                    </DialogDescription>
-                  </DialogHeader>
-                  <div className="grid gap-4">
-                    <div className="grid gap-3">
-                      <Label htmlFor="title">Section Title</Label>
-                      <Textarea
-                        id="title"
-                        name="title"
-                        defaultValue={section.title}
-                      />
-                    </div>
-                  </div>
-                  <DialogFooter>
-                    <DialogClose asChild>
-                      <Button variant="outline">Cancel</Button>
-                    </DialogClose>
-                    <DialogClose asChild>
-                      <Button type="submit">Save Section</Button>
-                    </DialogClose>
-                  </DialogFooter>
-                </form>
-              </DialogContent>
-            </Dialog>
           </div>
         </div>
         <div className="flex gap-4 items-center ml-auto mr-8">
@@ -100,14 +63,13 @@ const SortableSection = ({
                 <Trash2 size={20} className="text-destructive cursor-pointer" />
               </DialogTrigger>
               <DialogContent>
-                <DialogHeader>Delete Section</DialogHeader>
-                <DialogDescription>
-                  Lorem ipsum dolor sit amet, consectetur adipisicing elit.
-                  Placeat repellendus asperiores at assumenda aperiam, odit ad!
-                  Ut earum aliquam nobis, dolores iste reiciendis quasi
-                  voluptate, vel, eveniet temporibus sunt tempore.
-                  {/* TODO fix the content */}
-                </DialogDescription>
+                <DialogHeader>
+                  <DialogTitle>Delete Section</DialogTitle>
+                  <DialogDescription>
+                    Are you sure you want to delete this section? This action
+                    cannot be undone.
+                  </DialogDescription>
+                </DialogHeader>
                 <DialogFooter>
                   <DialogClose asChild>
                     <Button variant="outline">Cancel</Button>

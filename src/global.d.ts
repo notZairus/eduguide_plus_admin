@@ -7,11 +7,17 @@ interface Topic {
   createdAt?: string;
 }
 
+type StoredMedia = {
+  url: string;
+  type: string;
+};
+
 interface Section {
   _id: string;
   title?: string;
   order: number;
-  contentL: unknown;
+  content: unknown;
+  medias: StoredMedia;
   updatedAt?: string;
   createdAt?: string;
 }
