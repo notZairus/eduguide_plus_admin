@@ -1,7 +1,7 @@
 import { useEffect, useState, type FormEvent } from "react";
-import Loader from "../../components/Loader";
-import { Button } from "../../components/ui/button";
-import { Separator } from "../../components/ui/separator";
+import Loader from "../../../components/Loader";
+import { Button } from "../../../components/ui/button";
+import { Separator } from "../../../components/ui/separator";
 import {
   Dialog,
   DialogClose,
@@ -11,21 +11,21 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "../../components/ui/dialog";
-import { Input } from "../../components/ui/input";
-import { Label } from "../../components/ui/label";
+} from "../../../components/ui/dialog";
+import { Input } from "../../../components/ui/input";
+import { Label } from "../../../components/ui/label";
 import { DndContext, type DragEndEvent } from "@dnd-kit/core";
 import {
   arrayMove,
   SortableContext,
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
-import SortableTopic from "../../components/SortableTopic";
-import { ScrollArea } from "../../components/ui/scroll-area";
-import { api } from "../../lib/api";
+import SortableTopic from "../../../components/SortableTopic";
+import { ScrollArea } from "../../../components/ui/scroll-area";
+import { api } from "../../../lib/api";
 import { Link } from "react-router";
-import Topic from "../../components/Topic";
-import { wait } from "../../lib/utils";
+import Topic from "../../../components/Topic";
+import { wait } from "../../../lib/utils";
 
 const Handbook = () => {
   const [topics, setTopics] = useState<Topic[]>([]);
@@ -166,8 +166,9 @@ const Handbook = () => {
                                   {t.sections.map((s) => (
                                     <li
                                       key={s._id}
-                                      className="text-xs text-gray-400 underline decoration-gray-400 underlne"
+                                      className="text-xs ml-4 flex items-center gap-2 text-gray-400 underline decoration-gray-400 underlne"
                                     >
+                                      <div className="w-1 aspect-square bg-gray-400" />
                                       <Link to={`/handbook/sections/${s._id}`}>
                                         {s.title}
                                       </Link>

@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState } from "react";
-import { SimpleEditor } from "../../../components/tiptap-templates/simple/simple-editor";
+import { SimpleEditor } from "../../../../components/tiptap-templates/simple/simple-editor";
 import { Link, useParams } from "react-router";
-import { api } from "../../../lib/api";
-import { Button } from "../../../components/ui/button";
+import { api } from "../../../../lib/api";
+import { Button } from "../../../../components/ui/button";
 import { SquarePen, ChevronLeft } from "lucide-react";
 import {
   Dialog,
@@ -13,14 +13,15 @@ import {
   DialogDescription,
   DialogClose,
   DialogFooter,
-} from "../../../components/ui/dialog";
-import { Label } from "../../../components/ui/label";
-import { Textarea } from "../../../components/ui/textarea";
+} from "../../../../components/ui/dialog";
+import { Label } from "../../../../components/ui/label";
+import { Textarea } from "../../../../components/ui/textarea";
 import { type FormEvent } from "react";
-import { Input } from "../../../components/ui/input";
-import { Card } from "../../../components/ui/card";
-import Loader from "../../../components/Loader";
+import { Input } from "../../../../components/ui/input";
+import { Card } from "../../../../components/ui/card";
+import Loader from "../../../../components/Loader";
 import { SquarePlay } from "lucide-react";
+import { wait } from "../../../../lib/utils";
 
 type Media = {
   name: string;
@@ -49,6 +50,8 @@ const SectionEdit = () => {
     setSection(updatedSection);
   }
 
+  console.log(medias);
+
   async function handleSaveContent() {
     const formData = new FormData();
 
@@ -61,11 +64,15 @@ const SectionEdit = () => {
     });
 
     setIsSaving(true);
-    api.patch(`/sections/${section?._id}`, formData).then(() => {
-      setTimeout(() => {
-        setIsSaving(false);
-      }, 1000);
-    });
+    const res = await api.patch(`/sections/${section?._id}`, formData);
+
+    await wait(1);
+    setIsSaving(false);
+
+    setMedias([]);
+    setSection(res.data.section);
+    setStoredMedias(res.data.section.medias);
+    setContent(res.data.section.content);
   }
 
   useEffect(() => {
@@ -94,7 +101,7 @@ const SectionEdit = () => {
         <header className="bg-white shadow w-full min-h-20 flex items-center">
           <div className="flex justify-between w-3xl mx-auto py-4">
             <div className="flex gap-4  items-center">
-              <Link to="/handbook">
+              <Link to="/handbook/contents">
                 <ChevronLeft size={40} className="cursor-pointer" />
               </Link>
               <h1 className="text-3xl font-medium max-w-lg">
@@ -160,13 +167,16 @@ const SectionEdit = () => {
               onChange={(e) => {
                 if (!e.currentTarget.files) return;
                 const file = e?.currentTarget?.files[0] as File;
-                setMedias([
-                  ...medias,
-                  {
-                    name: file.name,
-                    file,
-                  },
-                ]);
+
+                if ([...storedMedias, ...medias].length < 3) {
+                  setMedias([
+                    ...medias,
+                    {
+                      name: file.name,
+                      file,
+                    },
+                  ]);
+                }
               }}
             />
             <Button

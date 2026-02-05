@@ -1,4 +1,13 @@
-import { LayoutDashboard, BookMarked } from "lucide-react";
+import {
+  LayoutDashboard,
+  BookMarked,
+  ChevronDown,
+  FolderPlus,
+  FolderClosed,
+  FileText,
+  Folder,
+} from "lucide-react";
+import { useState } from "react";
 import nc_logo from "@/assets/images/nc_logo.png";
 import { Link } from "react-router";
 
@@ -12,7 +21,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarHeader,
-} from "@/components/ui/sidebar";
+} from "../components/ui/sidebar";
 import { SidebarFooter, useSidebar } from "./ui/sidebar";
 import { useLocation, useNavigate } from "react-router";
 import { Separator } from "./ui/separator";
@@ -21,7 +30,7 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+} from "../components/ui/dropdown-menu";
 import { api } from "../lib/api";
 
 // Menu items.
@@ -31,10 +40,37 @@ const items = [
     url: "/dashboard",
     icon: LayoutDashboard,
   },
+];
+
+const collapsibleItems = [
   {
-    title: "Handbook",
-    url: "/handbook",
     icon: BookMarked,
+    name: "Handbook",
+    open: false,
+    items: [
+      {
+        title: "Content",
+        url: "/handbook/contents",
+        icon: FileText,
+      },
+    ],
+  },
+  {
+    icon: Folder,
+    name: "Quiz",
+    open: false,
+    items: [
+      {
+        title: "Quiz Creator",
+        url: "/quiz/create",
+        icon: FolderPlus,
+      },
+      {
+        title: "Question Bank",
+        url: "/questions",
+        icon: FolderClosed,
+      },
+    ],
   },
 ];
 
@@ -42,6 +78,11 @@ export function AppSidebar() {
   const { state } = useSidebar();
   const { pathname } = useLocation();
   const navigate = useNavigate();
+
+  // keep a local, stateful copy of collapsible items so we can use/toggle `open`
+  const [groups, setGroups] = useState(() =>
+    collapsibleItems.map((g) => ({ ...g })),
+  );
 
   async function handleSignOut() {
     try {
@@ -86,6 +127,56 @@ export function AppSidebar() {
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               ))}
+
+              {groups.map((group) => {
+                const isOpen = !!group.open;
+                return (
+                  <SidebarMenuItem key={group.name}>
+                    <SidebarMenuButton
+                      className="rounded transition-all w-full"
+                      onClick={() =>
+                        setGroups((prev) =>
+                          prev.map((g) =>
+                            g.name === group.name ? { ...g, open: !g.open } : g,
+                          ),
+                        )
+                      }
+                    >
+                      <div className="flex items-center justify-between w-full">
+                        <div className="flex items-center gap-2">
+                          <group.icon size={16} />
+                          <span>{group.name}</span>
+                        </div>
+                        <ChevronDown
+                          size={12}
+                          className={`transition-transform ${isOpen ? "rotate-180" : ""}`}
+                        />
+                      </div>
+                    </SidebarMenuButton>
+
+                    {isOpen && (
+                      <div className="pl-3 pt-1">
+                        {group.items.map((sub) => (
+                          <div key={sub.title}>
+                            <SidebarMenuButton
+                              asChild
+                              isActive={pathname.startsWith(sub.url)}
+                            >
+                              <Link
+                                to={sub.url}
+                                className="text-sm rounded-sm flex items-center gap-2"
+                              >
+                                {sub.icon && <sub.icon />}
+                                <span>{sub.title}</span>
+                              </Link>
+                            </SidebarMenuButton>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </SidebarMenuItem>
+                );
+              })}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>

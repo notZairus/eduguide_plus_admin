@@ -1,11 +1,15 @@
 import MainLayout from "./layouts/MainLayout";
 import Dashboard from "./pages/Dashboard";
-import LoginPage from "./pages/LoginPage";
+import LoginPage from "./pages/auth/LoginPage";
 import UnauthenticatedRoute from "./components/UnauthenticatedRoute";
 import { Routes, Route, Navigate } from "react-router";
-import HandbookIndex from "./pages/handbook/index";
-import { SimpleEditor } from "./components/tiptap-templates/simple/simple-editor";
-import SectionEdit from "./pages/handbook/sections/edit";
+import HandbookIndex from "./pages/handbook/content/index";
+import SectionEdit from "./pages/handbook/content/sections/edit";
+import RegisterPage from "./pages/auth/RegisterPage";
+
+import QuestionBank from "./pages/quiz/QuestionBank";
+import QuizCreator from "./pages/quiz/QuizCreator";
+import AuthenticatedRoute from "./components/AuthenticatedRoute";
 
 const App = () => {
   return (
@@ -21,9 +25,27 @@ const App = () => {
               </UnauthenticatedRoute>
             }
           />
-          <Route element={<MainLayout />}>
+          <Route
+            path="/register"
+            element={
+              <UnauthenticatedRoute>
+                <RegisterPage />
+              </UnauthenticatedRoute>
+            }
+          />
+          <Route
+            element={
+              <AuthenticatedRoute>
+                <MainLayout />
+              </AuthenticatedRoute>
+            }
+          >
             <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/handbook" element={<HandbookIndex />} />
+
+            <Route path="/handbook/contents" element={<HandbookIndex />} />
+
+            <Route path="/quiz/create" element={<QuizCreator />} />
+            <Route path="/questions" element={<QuestionBank />} />
           </Route>
 
           <Route path="/handbook/sections/:id" element={<SectionEdit />} />

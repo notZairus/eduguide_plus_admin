@@ -1,8 +1,9 @@
 import nc_logo from "@/assets/images/nc_logo.png";
 import { useState, type FormEvent } from "react";
-import { api } from "../lib/api";
-import { Separator } from "../components/ui/separator";
-import { useNavigate } from "react-router";
+import { api } from "../../lib/api";
+import { Separator } from "../../components/ui/separator";
+import { useNavigate, Link } from "react-router";
+import { Button } from "../../components/ui/button";
 
 export default function LoginPage() {
   const [loginData, setLoginData] = useState<{
@@ -30,7 +31,7 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-nc-blue">
-      <div className="bg-white h-screen md:h-min w-full md:w-sm rounded shadow-lg p-8 hover:scale-102 transition duration-500">
+      <div className="bg-white h-screen md:h-min w-full md:w-sm rounded shadow-lg p-8">
         <div className="flex flex-col items-center mb-6">
           <div className="w-20 h-20 mb-3 flex items-center justify-center rounded-full border">
             {/* Replace src with your actual logo */}
@@ -74,12 +75,17 @@ export default function LoginPage() {
             />
           </div>
 
-          <button
-            type="submit"
-            className="cursor-pointer w-full mt-4 bg-[#2f6fb2] text-white py-2 roundedp font-medium hover:bg-[#285f98] transition"
-          >
+          <Button type="submit" size="lg" className="w-full rounded">
             Login
-          </button>
+          </Button>
+          <div className="text-center mt-4 text-sm">
+            <p>
+              Don't have an account?{" "}
+              <Link to="/register" className="text-blue-600 hover:underline">
+                Register
+              </Link>{" "}
+            </p>
+          </div>
         </form>
       </div>
     </div>
