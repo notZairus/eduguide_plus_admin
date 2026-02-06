@@ -24,6 +24,7 @@ import { ScrollArea } from "./ui/scroll-area";
 import { Label } from "@radix-ui/react-label";
 import { useRef, useState, type FormEvent } from "react";
 import { api } from "../lib/api";
+import Loader from "./Loader";
 
 const initialData = {
   topic: "",
@@ -34,7 +35,13 @@ const initialData = {
   explanation: "",
 };
 
-const AddQuestionDialog = ({ topics }: { topics: Topic[] }) => {
+const AddQuestionDialog = ({
+  topics,
+  setQuestions,
+}: {
+  topics: Topic[];
+  setQuestions: React.Dispatch<React.SetStateAction<Question[] | null>>;
+}) => {
   const [data, setData] = useState(initialData);
   const [choices, setChoices] = useState(Array.from({ length: 4 }));
   const [media, setMedia] = useState<{
@@ -42,9 +49,12 @@ const AddQuestionDialog = ({ topics }: { topics: Topic[] }) => {
     type: "image" | "video";
   } | null>(null);
   const fileInputRef = useRef(null);
+  const [isCreating, setIsCreating] = useState(false);
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
+    setIsCreating(true);
+
     const formData = new FormData();
     formData.append("topicId", data.topic);
     formData.append("sectionId", data.section);
@@ -64,6 +74,8 @@ const AddQuestionDialog = ({ topics }: { topics: Topic[] }) => {
     try {
       const res = await api.post("/questions", formData);
       console.log(res);
+      setQuestions((prev) => [...prev, res.data.question]);
+
       setMedia(null);
       setData({
         ...data,
@@ -71,14 +83,18 @@ const AddQuestionDialog = ({ topics }: { topics: Topic[] }) => {
         answer: "",
         explanation: "",
       });
+      setIsCreating(false);
     } catch (e) {
       console.log(e);
+      setIsCreating(false);
       throw e;
     }
   }
 
   return (
     <>
+      <Loader show={isCreating} text="Creating..." />
+
       <Dialog>
         <DialogTrigger asChild>
           <Button>

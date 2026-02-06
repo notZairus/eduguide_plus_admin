@@ -7,7 +7,7 @@ import HandbookIndex from "./pages/handbook/content/index";
 import SectionEdit from "./pages/handbook/content/sections/edit";
 import RegisterPage from "./pages/auth/RegisterPage";
 
-import QuestionBank from "./pages/quiz/QuestionBank";
+import QuestionBank from "./pages/quiz/questions/page";
 import QuizCreator from "./pages/quiz/QuizCreator";
 import AuthenticatedRoute from "./components/AuthenticatedRoute";
 

@@ -188,15 +188,15 @@ export function AppSidebar() {
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <div className="w-full bg-white rounded shadow p-2 flex gap-2 cursor-pointer">
-                    <div className="bg-red-400 w-12 h-12 overflow-hidden">
+                    <div className="bg-red-400 w-12 h-12 overflow-hidden rounded">
                       <img
-                        src="https://scontent.fmnl14-1.fna.fbcdn.net/v/t39.30808-6/577240231_122095390509110996_4730731300679988931_n.jpg?_nc_cat=106&ccb=1-7&_nc_sid=6ee11a&_nc_eui2=AeHGK5iE0UvELydwDi_ZGcNTAEyozAQIpJIATKjMBAikkv5CftPDVQD_eP28hve8e7ZvUPmb7ZhMQD_5Nf7Y1OSv&_nc_ohc=1BRMPE4ZppEQ7kNvwGLTugy&_nc_oc=Adm8BMNwDpPEnqQ-eImFtb0TmnqemMB2oFKutjaA6mrciQsjLtD4WYshVdMzxpCRhXU&_nc_zt=23&_nc_ht=scontent.fmnl14-1.fna&_nc_gid=REDCHGjlTgBTMnaKgg9eBA&oh=00_AfqpF-YuQie8h5Ulf9nuiYhKTsaZLd-IJWvMHq4xwCdsTg&oe=6978061B"
+                        src="https://scontent-mnl1-2.xx.fbcdn.net/v/t39.30808-1/606865534_1181934897474631_5834981792832036002_n.jpg?stp=dst-jpg_s200x200_tt6&_nc_cat=105&ccb=1-7&_nc_sid=e99d92&_nc_eui2=AeGrOxvxBAxB5FEe6nBow8bYCvw-PCl0JDIK_D48KXQkMmCNoNb8HBeW4JjNJxNrBlPN3hL7TRFlb0kTwS13shxH&_nc_ohc=7G93QGE5tVsQ7kNvwHclzw3&_nc_oc=Adl9TxxLTjiPyfcBojr7VCTxcekHVpZGDcCxBCZCehEoc48PEzApiqPvjwGC2Hv2iLY&_nc_zt=24&_nc_ht=scontent-mnl1-2.xx&_nc_gid=nkKn1lmKrhvEsKCilZwXQg&oh=00_AfvThaWBLAD_9FrZ5z_cXOGgJI-AF89e-cP7ygLJ5t5pjw&oe=698B835C"
                         alt="profile-picture"
                       />
                     </div>
                     <div className="flex-1">
                       <p className="text-md wrap-break-word w-20 font-medium">
-                        Zairus V. Bermillo
+                        Jienelle N. Bautista
                       </p>
                     </div>
                   </div>
