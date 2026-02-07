@@ -1,3 +1,4 @@
+import { useState, useRef, type FormEvent } from "react";
 import {
   Dialog,
   DialogTrigger,
@@ -6,6 +7,7 @@ import {
   DialogDescription,
   DialogHeader,
 } from "./ui/dialog";
+import { ScrollArea } from "./ui/scroll-area";
 import {
   Select,
   SelectContent,
@@ -14,47 +16,57 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../components/ui/select";
-import { Textarea } from "./ui/textarea";
-import { RadioGroup, RadioGroupItem } from "../components/ui/radio-group";
 import { Card, CardContent, CardTitle } from "../components/ui/card";
-import { Button } from "../components/ui/button";
-import { Input } from "../components/ui/input";
-import { Plus, Upload } from "lucide-react";
-import { ScrollArea } from "./ui/scroll-area";
 import { Label } from "@radix-ui/react-label";
-import { useRef, useState, type FormEvent } from "react";
-import { api } from "../lib/api";
+import { Textarea } from "./ui/textarea";
+import { Input } from "./ui/input";
 import Loader from "./Loader";
+import { Upload } from "lucide-react";
+import { Button } from "./ui/button";
 import ReactPlayer from "react-player";
+import { RadioGroup, RadioGroupItem } from "./ui/radio-group";
+import { api } from "../lib/api";
 
-const initialData = {
-  topic: "",
-  section: "",
-  questionType: "multiple-choice",
-  question: "",
-  answer: "",
-  explanation: "",
-};
-
-const AddQuestionDialog = ({
+const EditQuestionDialog = ({
+  question,
   topics,
   setQuestions,
 }: {
+  question: Question;
   topics: Topic[];
   setQuestions: React.Dispatch<React.SetStateAction<Question[]>>;
 }) => {
-  const [data, setData] = useState(initialData);
-  const [choices, setChoices] = useState(Array.from({ length: 4 }));
-  const [media, setMedia] = useState<{
-    file: File;
-    type: "image" | "video";
-  } | null>(null);
-  const fileInputRef = useRef(null);
-  const [isCreating, setIsCreating] = useState(false);
+  const [data, setData] = useState({
+    topic: question.topic_id,
+    section: question.section_id,
+    questionType: question.type,
+    answer: question.answer,
+    question: question.question,
+    explanation: question.explanation ?? "",
+  });
+
+  const [media, setMedia] = useState<
+    | {
+        type: "image" | "video";
+        file: File;
+      }
+    | null
+    | string
+  >(question.media ? question.media.url : null);
+
+  const [choices, setChoices] = useState(
+    question.type === "multiple-choice"
+      ? (question.choices as string[])
+      : Array.from({ length: 4 }),
+  );
+
+  const [isUpdating, setIsUpdating] = useState(false);
+
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
-    setIsCreating(true);
+    setIsUpdating(true);
 
     const formData = new FormData();
     formData.append("topicId", data.topic);
@@ -68,45 +80,39 @@ const AddQuestionDialog = ({
       formData.append("choices", JSON.stringify(choices));
     }
 
-    if (media) {
+    if (media && typeof media !== "string") {
       formData.append("file", media.file);
     }
 
     try {
-      const res = await api.post("/questions", formData);
-      setQuestions((prev) => [...prev, res.data.question]);
+      const res = await api.put(`/questions/${question._id}`, formData);
+      const updatedQuestion = res.data.question;
 
-      setMedia(null);
-      setData({
-        ...data,
-        question: "",
-        answer: "",
-        explanation: "",
+      setQuestions((prev) => {
+        const copy = prev.slice();
+        const index = copy.findIndex((q) => q._id === question._id);
+        copy[index] = updatedQuestion;
+        return copy;
       });
-      setIsCreating(false);
-    } catch (e) {
-      console.log(e);
-      setIsCreating(false);
+      setIsUpdating(false);
+    } catch (error) {
+      console.error("Error updating question:", error);
+      setIsUpdating(false);
     }
   }
 
   return (
     <>
-      <Loader show={isCreating} text="Creating..." />
+      <Loader show={isUpdating} text="Updating..." />
 
       <Dialog>
-        <DialogTrigger asChild>
-          <Button>
-            <Plus size={16} />
-            Add Question
-          </Button>
+        <DialogTrigger className="text-blue-500" asChild>
+          <p className="pl-2 text-sm cursor-pointer">Edit</p>
         </DialogTrigger>
         <DialogContent className="rounded min-w-2xl flex flex-col">
           <DialogHeader>
-            <DialogTitle>Add Question</DialogTitle>
-            <DialogDescription>
-              Create a new question to add to your question bank
-            </DialogDescription>
+            <DialogTitle>Edit Question</DialogTitle>
+            <DialogDescription>Update the question details</DialogDescription>
           </DialogHeader>
           <form onSubmit={handleSubmit}>
             <div className="flex-1">
@@ -120,7 +126,7 @@ const AddQuestionDialog = ({
                         <Label htmlFor="topic">Topic *</Label>
                         <Select
                           required
-                          value={data.topic}
+                          value={question.topic_id}
                           onValueChange={(value) => {
                             setData({ ...data, topic: value, section: "" });
                           }}
@@ -146,6 +152,7 @@ const AddQuestionDialog = ({
                         <Select
                           required
                           name="section"
+                          value={data.section}
                           disabled={data.topic ? false : true}
                           onValueChange={(value) => {
                             setData({ ...data, section: value });
@@ -205,7 +212,7 @@ const AddQuestionDialog = ({
                   </CardContent>
                 </Card>
 
-                {/* CONTENT */}
+                {/* QUESTION */}
                 <Card className="rounded p-4 mb-6">
                   <CardTitle>Content</CardTitle>
                   <CardContent className="px-6 space-y-4">
@@ -250,7 +257,7 @@ const AddQuestionDialog = ({
                       </div>
                     )}
 
-                    {media && media.type === "image" && (
+                    {media && (
                       <div className="rounded overflow-hidden relative p-2 bg-gray-50 border">
                         <Button
                           className="absolute top-2 right-2"
@@ -258,35 +265,45 @@ const AddQuestionDialog = ({
                         >
                           x
                         </Button>
-                        <img
-                          src={URL.createObjectURL(media.file as File)}
-                          alt="image"
-                        />
-                      </div>
-                    )}
+                        {typeof media === "string" &&
+                          question.media &&
+                          question?.media?.type === "image" && (
+                            <img src={media} alt="image" />
+                          )}
 
-                    {media && media.type === "video" && (
-                      <div className="bg-gray-50 border p-4 flex items-center justify-between rounded relative">
-                        <ReactPlayer
-                          src={URL.createObjectURL(media.file as File)}
-                          controls
-                          width={"80%"}
-                        />
-                        <Button
-                          className="absolute top-2 right-2"
-                          onClick={() => setMedia(null)}
-                        >
-                          x
-                        </Button>
+                        {typeof media === "string" &&
+                          question.media &&
+                          question?.media?.type === "video" && (
+                            <ReactPlayer src={media} controls width={"80%"} />
+                          )}
+
+                        {typeof media !== "string" &&
+                          media.type === "image" && (
+                            <img
+                              src={URL.createObjectURL(media.file)}
+                              alt="uploaded image"
+                            />
+                          )}
+
+                        {typeof media !== "string" &&
+                          media.type === "video" && (
+                            <ReactPlayer
+                              src={URL.createObjectURL(media.file as File)}
+                              controls
+                              width={"80%"}
+                            />
+                          )}
                       </div>
                     )}
                   </CardContent>
                 </Card>
 
-                {/* MULTIPLE CHOICE */}
-                {data.questionType === "multiple-choice" && (
-                  <Card className="mb-6 rounded p-4">
-                    <CardTitle>Choices</CardTitle>
+                {/* CONTENT */}
+                <Card className="mb-6 rounded p-4">
+                  <CardTitle>Choices</CardTitle>
+
+                  {/* MULTIPLE CHOICE */}
+                  {data.questionType === "multiple-choice" && (
                     <CardContent className="px-6 space-y-4">
                       <RadioGroup
                         required
@@ -313,13 +330,25 @@ const AddQuestionDialog = ({
                         ))}
                       </RadioGroup>
                     </CardContent>
-                  </Card>
-                )}
+                  )}
 
-                {/* TRUE OR FALSE */}
-                {data.questionType === "true-or-false" && (
-                  <Card className="mb-6 rounded p-4">
-                    <CardTitle>Answer</CardTitle>
+                  {/* IDENTIFICATION */}
+                  {data.questionType === "identification" && (
+                    <CardContent className="px-6 space-y-4">
+                      <Input
+                        required
+                        type="text"
+                        value={data.answer}
+                        onChange={(e) =>
+                          setData({ ...data, answer: e.target.value })
+                        }
+                        placeholder="Type the answer here."
+                      />
+                    </CardContent>
+                  )}
+
+                  {/* TRUE OR FALSE */}
+                  {data.questionType === "true-or-false" && (
                     <CardContent className="px-6 space-y-4">
                       <RadioGroup
                         required
@@ -337,26 +366,8 @@ const AddQuestionDialog = ({
                         </Label>
                       </RadioGroup>
                     </CardContent>
-                  </Card>
-                )}
-
-                {/* IDENTIFICATION */}
-                {data.questionType === "identification" && (
-                  <Card className="mb-6 rounded p-4">
-                    <CardTitle>Answer</CardTitle>
-                    <CardContent className="px-6 space-y-4">
-                      <Input
-                        required
-                        type="text"
-                        value={data.answer}
-                        onChange={(e) =>
-                          setData({ ...data, answer: e.target.value })
-                        }
-                        placeholder="Type the answer here."
-                      />
-                    </CardContent>
-                  </Card>
-                )}
+                  )}
+                </Card>
 
                 <Card className="rounded p-4 mb-6">
                   <CardTitle>Learning</CardTitle>
@@ -381,7 +392,7 @@ const AddQuestionDialog = ({
             </div>
             <div className="flex justify-end">
               <Button disabled={!data.answer || !data.question}>
-                Create Question
+                Update Question
               </Button>
             </div>
           </form>
@@ -391,4 +402,4 @@ const AddQuestionDialog = ({
   );
 };
 
-export default AddQuestionDialog;
+export default EditQuestionDialog;

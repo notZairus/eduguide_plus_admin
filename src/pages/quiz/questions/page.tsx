@@ -66,9 +66,12 @@ const QuestionBank = () => {
             <AddQuestionDialog topics={topics} setQuestions={setQuestions} />
           </div>
         </header>
-        <div className="mt-8">
-          <div className="w-full overflow-auto">
-            <DataTable data={questions} columns={columns(handleDelete)} />
+        <div className="mt-4">
+          <div className="w-full overflow-auto px-2">
+            <DataTable
+              data={questions}
+              columns={columns(handleDelete, topics, setQuestions)}
+            />
           </div>
         </div>
       </div>

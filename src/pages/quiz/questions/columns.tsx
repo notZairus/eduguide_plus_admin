@@ -9,36 +9,69 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import EditQuestionDialog from "../../../components/EditQuestionDialog";
 
 // This type is used to define the shape of our data.
 // You can use a Zod schema here if you want.
 
 export function columns(
   handleDelete: (question_id: string) => void,
+  topics: Topic[],
+  setQuestions: React.Dispatch<React.SetStateAction<Question[]>>,
 ): ColumnDef<Question>[] {
   return [
     {
       accessorKey: "question",
       header: "Question",
+      cell: ({ row }) => {
+        const question: string = row.getValue("question");
+        return (
+          <div className="max-w-48 whitespace-normal wrap-break-word">
+            {question}
+          </div>
+        );
+      },
     },
     {
       accessorKey: "type",
       header: "Type",
+      cell: ({ row }) => {
+        const type: string = row.getValue("type");
+        return type.charAt(0).toUpperCase() + type.slice(1);
+      },
     },
     {
       accessorKey: "topic_id",
       header: "Topic",
       cell: ({ row }) => {
-        const topic: Topic = row.getValue("topic_id");
-        return topic.title;
+        const topicId = row.getValue("topic_id");
+        const currentTopic = topics.find((t) => t._id === topicId);
+        const topicTitle = currentTopic ? currentTopic.title : "N/A";
+
+        return (
+          <div className="max-w-24 whitespace-normal wrap-break-word">
+            {topicTitle}
+          </div>
+        );
       },
     },
     {
       accessorKey: "section_id",
       header: "Section",
       cell: ({ row }) => {
-        const section: Section = row.getValue("section_id");
-        return section.title;
+        const sectionId = row.getValue("section_id");
+        const topicId = row.getValue("topic_id");
+        const currentTopic = topics.find((t) => t._id === topicId);
+        const currentSection = currentTopic?.sections.find(
+          (s) => s._id === sectionId,
+        );
+        const sectionTitle = currentSection ? currentSection.title : "N/A";
+
+        return (
+          <div className="max-w-24 whitespace-normal wrap-break-word">
+            {sectionTitle}
+          </div>
+        );
       },
     },
     {
@@ -65,14 +98,19 @@ export function columns(
             <DropdownMenuContent align="end">
               <DropdownMenuLabel>Actions</DropdownMenuLabel>
               <DropdownMenuSeparator />
-              <DropdownMenuItem className="text-blue-500">
-                Edit
+              <DropdownMenuItem asChild>
+                <EditQuestionDialog
+                  question={question}
+                  topics={topics}
+                  setQuestions={setQuestions}
+                />
               </DropdownMenuItem>
               <DropdownMenuItem
                 className="text-destructive"
                 onClick={() => handleDelete(question._id)}
+                asChild
               >
-                Delete
+                <p className="text-sm cursor-pointer">Delete</p>
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
