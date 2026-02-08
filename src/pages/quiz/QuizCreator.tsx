@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, type FormEvent } from "react";
 import { DndContext, closestCenter, type DragEndEvent } from "@dnd-kit/core";
 import {
   arrayMove,
@@ -35,6 +35,7 @@ import {
   ChevronDown,
   Settings,
 } from "lucide-react";
+import { useHandbookContext } from "../../contexts/HandbookContext";
 
 interface Question {
   id: string;
@@ -153,10 +154,11 @@ function DraggableQuestionCard({
 }
 
 const QuizCreator = () => {
+  const { handbook } = useHandbookContext();
   const [formData, setFormData] = useState<QuizFormData>({
     title: "",
     linkedSubtopic: "",
-    passingScore: 80,
+    passingScore: 75,
     timeLimit: null,
     enableTimeLimit: false,
     shuffle: false,
@@ -168,8 +170,8 @@ const QuizCreator = () => {
   const [availableQuestions, setAvailableQuestions] =
     useState(SAMPLE_QUESTIONS);
 
-  const handleSubmit = (e) => {
-    console.log(formData);
+  const handleSubmit = (e: FormEvent) => {
+    e.preventDefault();
   };
 
   const handleDragEnd = (event: DragEndEvent) => {
@@ -232,7 +234,6 @@ const QuizCreator = () => {
         {/* Quiz Header - General Settings */}
         <Card className="p-6 mb-6 bg-white rounded">
           <div className="flex items-center gap-2 mb-6">
-            <Settings size={24} className="text-blue-600" />
             <h2 className="text-xl font-semibold text-gray-900">
               Quiz Identity
             </h2>

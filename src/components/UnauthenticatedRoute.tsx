@@ -1,12 +1,9 @@
 import { useEffect, useState, type JSX } from "react";
 import { isAuthenticated } from "../lib/auth";
 import { useNavigate } from "react-router";
+import { Outlet } from "react-router";
 
-export default function UnauthenticatedRoute({
-  children,
-}: {
-  children: React.ReactNode;
-}): JSX.Element | null {
+export default function UnauthenticatedRoute(): JSX.Element | null {
   const [auth, setAuth] = useState<boolean | null>(null);
   const navigate = useNavigate();
 
@@ -27,5 +24,5 @@ export default function UnauthenticatedRoute({
     navigate("/dashboard");
   }
 
-  return <>{children}</>;
+  return <Outlet />;
 }

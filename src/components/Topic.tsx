@@ -201,7 +201,6 @@ const Topic = ({
                   <SortableSection
                     key={section._id}
                     section={section}
-                    handleEditSectionName={handleEditSectionName}
                     handleDeleteSection={handleDeleteSection}
                   />
                 ))}

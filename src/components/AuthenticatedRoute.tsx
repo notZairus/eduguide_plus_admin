@@ -1,12 +1,10 @@
 import { useEffect, useState, type JSX } from "react";
 import { isAuthenticated } from "../lib/auth";
 import { useNavigate } from "react-router";
+import { HandbookProvider } from "../contexts/HandbookContext";
+import { Outlet } from "react-router";
 
-export default function AuthenticatedRoute({
-  children,
-}: {
-  children: React.ReactNode;
-}): JSX.Element | null {
+export default function AuthenticatedRoute(): JSX.Element | null {
   const [auth, setAuth] = useState<boolean | null>(null);
   const navigate = useNavigate();
 
@@ -27,5 +25,9 @@ export default function AuthenticatedRoute({
     navigate("/login");
   }
 
-  return <>{children}</>;
+  return (
+    <HandbookProvider>
+      <Outlet />
+    </HandbookProvider>
+  );
 }

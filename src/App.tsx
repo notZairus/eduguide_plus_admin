@@ -3,7 +3,10 @@ import Dashboard from "./pages/Dashboard";
 import LoginPage from "./pages/auth/LoginPage";
 import UnauthenticatedRoute from "./components/UnauthenticatedRoute";
 import { Routes, Route, Navigate } from "react-router";
+
 import HandbookIndex from "./pages/handbook/content/index";
+import HandbookConfigure from "./pages/handbook/configure/page";
+
 import SectionEdit from "./pages/handbook/content/sections/edit";
 import RegisterPage from "./pages/auth/RegisterPage";
 
@@ -16,37 +19,56 @@ const App = () => {
     <>
       <Routes>
         <Route path="/" element={<Navigate to="dashboard" />} />
-        <Route>
+
+        <Route element={<UnauthenticatedRoute />}>
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/register" element={<RegisterPage />} />
+        </Route>
+
+        <Route element={<AuthenticatedRoute />}>
           <Route
-            path="/login"
+            path="/dashboard"
             element={
-              <UnauthenticatedRoute>
-                <LoginPage />
-              </UnauthenticatedRoute>
+              <MainLayout>
+                <Dashboard />
+              </MainLayout>
+            }
+          />
+
+          <Route
+            path="/handbook/contents"
+            element={
+              <MainLayout>
+                <HandbookIndex />
+              </MainLayout>
             }
           />
           <Route
-            path="/register"
+            path="/handbook/configure"
             element={
-              <UnauthenticatedRoute>
-                <RegisterPage />
-              </UnauthenticatedRoute>
+              <MainLayout>
+                <HandbookConfigure />
+              </MainLayout>
             }
           />
+
           <Route
+            path="/quiz/create"
             element={
-              <AuthenticatedRoute>
-                <MainLayout />
-              </AuthenticatedRoute>
+              <MainLayout>
+                <QuizCreator />
+              </MainLayout>
             }
-          >
-            <Route path="/dashboard" element={<Dashboard />} />
+          />
 
-            <Route path="/handbook/contents" element={<HandbookIndex />} />
-
-            <Route path="/quiz/create" element={<QuizCreator />} />
-            <Route path="/questions" element={<QuestionBank />} />
-          </Route>
+          <Route
+            path="/questions"
+            element={
+              <MainLayout>
+                <QuestionBank />
+              </MainLayout>
+            }
+          />
 
           <Route path="/handbook/sections/:id" element={<SectionEdit />} />
         </Route>

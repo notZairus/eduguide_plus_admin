@@ -3,7 +3,6 @@ import { useState, type FormEvent } from "react";
 import { api } from "../../lib/api";
 import { Separator } from "../../components/ui/separator";
 import { useNavigate, Link } from "react-router";
-import { Button } from "../../components/ui/button";
 
 export default function LoginPage() {
   const [loginData, setLoginData] = useState<{
@@ -21,7 +20,9 @@ export default function LoginPage() {
 
     try {
       const res = await api.post("/auth/login", loginData);
-      if (res.status === 200) navigate("/dashboard");
+      if (res.status === 200) {
+        navigate("/dashboard");
+      }
     } catch (e) {
       setError(e.response.data);
     }
@@ -75,9 +76,12 @@ export default function LoginPage() {
             />
           </div>
 
-          <Button type="submit" size="lg" className="w-full rounded">
+          <button
+            type="submit"
+            className="w-full rounded bg-nc-blue text-white py-2 hover:bg-nc-blue/90 transition"
+          >
             Login
-          </Button>
+          </button>
           <div className="text-center mt-4 text-sm">
             <p>
               Don't have an account?{" "}

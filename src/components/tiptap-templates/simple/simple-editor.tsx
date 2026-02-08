@@ -299,7 +299,7 @@ export function SimpleEditor({ content, setContent, handleSaveContent }) {
         class: "simple-editor",
       },
       handleKeyDown: (view, event) => {
-        if (event.key === "Tab") {
+        if (event.key === "Tab" && event.shiftKey) {
           event.preventDefault();
           const { state, dispatch } = view;
           const { from, to } = state.selection;

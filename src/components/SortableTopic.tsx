@@ -1,5 +1,6 @@
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
+import { useHandbookContext } from "../contexts/HandbookContext";
 
 export default function SortableTopic({
   topic,
@@ -8,6 +9,7 @@ export default function SortableTopic({
   topic: Topic;
   children: React.ReactNode;
 }) {
+  const { handbook } = useHandbookContext();
   const { attributes, listeners, setNodeRef, transform, transition } =
     useSortable({ id: topic._id });
 
@@ -25,7 +27,8 @@ export default function SortableTopic({
     >
       <div
         {...listeners}
-        className="cursor-grab w-full bg-nc-blue h-4 rounded-t"
+        style={{ backgroundColor: handbook?.color }}
+        className="cursor-grab w-full h-4 rounded-t"
       />
 
       <div>{children}</div>

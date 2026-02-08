@@ -168,7 +168,7 @@ const Handbook = () => {
                                       key={s._id}
                                       className="text-xs ml-4 flex items-center gap-2 text-gray-400 underline decoration-gray-400 underlne"
                                     >
-                                      <div className="w-1 aspect-square bg-gray-400" />
+                                      <div className="w-1 min-w-1 aspect-square bg-gray-400" />
                                       <Link to={`/handbook/sections/${s._id}`}>
                                         {s.title}
                                       </Link>

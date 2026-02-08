@@ -1,3 +1,21 @@
+interface Handbook {
+  _id: string;
+  title: string;
+  color?: string;
+  description?: string;
+  topics: Topic[];
+  user_id: string;
+  logo?: {
+    url: string;
+  };
+  thumbnail?: {
+    url: string;
+  };
+  createdAt: string;
+  updatedAt: string;
+  __v: number;
+}
+
 interface Topic {
   _id: string;
   title: string;

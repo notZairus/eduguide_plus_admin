@@ -1,9 +1,7 @@
-import { Pencil, Trash2, Eye, SquarePen } from "lucide-react";
+import { Pencil, Trash2, Eye } from "lucide-react";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import type { FormEvent } from "react";
-import { Label } from "./ui/label";
-import { Textarea } from "./ui/textarea";
 import { Button } from "./ui/button";
 import {
   Dialog,
@@ -16,16 +14,17 @@ import {
   DialogFooter,
 } from "./ui/dialog";
 import { Link } from "react-router";
+import { useHandbookContext } from "../contexts/HandbookContext";
 
 const SortableSection = ({
   section,
-  handleEditSectionName,
   handleDeleteSection,
 }: {
   section: Section;
   handleEditSectionName: (e: FormEvent, section_id: string) => void;
   handleDeleteSection: (section_id: string) => void;
 }) => {
+  const { handbook } = useHandbookContext();
   const { attributes, listeners, setNodeRef, transform, transition } =
     useSortable({ id: section._id });
 
@@ -42,7 +41,11 @@ const SortableSection = ({
         {...attributes}
         className=" w-full border rounded overflow-hidden shadow bg-card flex gap-4"
       >
-        <div className="max-w-3 flex-1 bg-nc-blue" {...listeners}></div>
+        <div
+          style={{ backgroundColor: handbook?.color }}
+          className="max-w-3 flex-1"
+          {...listeners}
+        ></div>
         <div className="flex-2 max-w-sm p-4 flex items-center ">
           <div className="flex items-center gap-2">
             <p className="w-full text-ellipsis">{section.title}</p>

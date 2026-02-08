@@ -6,6 +6,7 @@ import {
   FolderClosed,
   FileText,
   Folder,
+  Wrench,
 } from "lucide-react";
 import { useState } from "react";
 import nc_logo from "@/assets/images/nc_logo.png";
@@ -32,6 +33,7 @@ import {
   DropdownMenuTrigger,
 } from "../components/ui/dropdown-menu";
 import { api } from "../lib/api";
+import { useHandbookContext } from "../contexts/HandbookContext";
 
 // Menu items.
 const items = [
@@ -45,20 +47,25 @@ const items = [
 const collapsibleItems = [
   {
     icon: BookMarked,
-    name: "Handbook",
-    open: false,
+    name: "Handbook App",
+    open: true,
     items: [
       {
         title: "Content",
         url: "/handbook/contents",
         icon: FileText,
       },
+      {
+        title: "Configure",
+        url: "/handbook/configure",
+        icon: Wrench,
+      },
     ],
   },
   {
     icon: Folder,
     name: "Quiz",
-    open: false,
+    open: true,
     items: [
       {
         title: "Quiz Creator",
@@ -78,6 +85,7 @@ export function AppSidebar() {
   const { state } = useSidebar();
   const { pathname } = useLocation();
   const navigate = useNavigate();
+  const { handbook } = useHandbookContext();
 
   // keep a local, stateful copy of collapsible items so we can use/toggle `open`
   const [groups, setGroups] = useState(() =>
@@ -96,12 +104,21 @@ export function AppSidebar() {
   return (
     <Sidebar variant="floating" collapsible="icon">
       {state === "expanded" && (
-        <SidebarHeader className="h-20">
-          <div className="w-full h-full p-4 bg-nc-blue rounded shadow flex gap-4 items-center">
-            <div className="h-full aspect-square bg-white rounded-full">
-              <img src={nc_logo} alt="" />
+        <SidebarHeader>
+          <div
+            style={{ backgroundColor: handbook?.color }}
+            className={`w-full h-full p-4 rounded shadow flex gap-4 flex-col justify-center items-center`}
+          >
+            <div className="w-full max-w-24 aspect-square rounded overflow-hidden">
+              <img
+                src={handbook?.logo?.url || nc_logo}
+                alt="logo"
+                className="w-full h-full"
+              />
             </div>
-            <div className="font-bold text-white/90">Norzagaray College</div>
+            <div className="font-bold text-white/90 text-center">
+              {handbook?.title}
+            </div>
           </div>
         </SidebarHeader>
       )}
