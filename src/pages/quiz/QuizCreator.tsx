@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 import { DndContext, closestCenter, type DragEndEvent } from "@dnd-kit/core";
 import {
   arrayMove,
@@ -26,26 +26,12 @@ import {
   DialogTitle,
 } from "../../components/ui/dialog";
 
-import {
-  Plus,
-  X,
-  GripVertical,
-  Image,
-  Video,
-  ChevronDown,
-  Settings,
-} from "lucide-react";
-import { useHandbookContext } from "../../contexts/HandbookContext";
-
-interface Question {
-  id: string;
-  text: string;
-  hasMedia: "none" | "image" | "video";
-}
+import { Plus, X, GripVertical, Image, Video, ChevronDown } from "lucide-react";
+import { api } from "../../lib/api";
 
 interface QuizFormData {
   title: string;
-  linkedSubtopic: string;
+  linkedTopic: string;
   passingScore: number;
   timeLimit: number | null;
   enableTimeLimit: boolean;
@@ -53,48 +39,12 @@ interface QuizFormData {
   instantFeedback: boolean;
 }
 
-const SAMPLE_QUESTIONS: Question[] = [
-  {
-    id: "1",
-    text: "What is the official logo of the organization?",
-    hasMedia: "image",
-  },
-  {
-    id: "2",
-    text: "What are the key principles in the admission policy?",
-    hasMedia: "none",
-  },
-  {
-    id: "3",
-    text: "Describe the enrollment process",
-    hasMedia: "video",
-  },
-  {
-    id: "4",
-    text: "What documents are required for admission?",
-    hasMedia: "none",
-  },
-  {
-    id: "5",
-    text: "Explain the tuition structure",
-    hasMedia: "image",
-  },
-];
-
-const SUBTOPICS = [
-  "I. Section A - Introduction",
-  "I. Section B - Official Logo",
-  "II. Section A - Admission Policy",
-  "II. Section B - Application Process",
-  "III. Enrollment Guidelines",
-];
-
 function DraggableQuestionCard({
   question,
   onRemove,
 }: {
   question: Question;
-  onRemove: () => void;
+  onRemove: (question: Question) => void;
 }) {
   const {
     attributes,
@@ -103,7 +53,7 @@ function DraggableQuestionCard({
     transform,
     transition,
     isDragging,
-  } = useSortable({ id: question.id });
+  } = useSortable({ id: question._id });
 
   const style = {
     transform: CSS.Transform.toString(transform),
@@ -127,14 +77,16 @@ function DraggableQuestionCard({
       </button>
 
       <div className="flex-1 min-w-0">
-        <p className="text-sm text-gray-700 line-clamp-2">{question.text}</p>
+        <p className="text-sm text-gray-700 line-clamp-2">
+          {question.question}
+        </p>
         <div className="flex items-center gap-2 mt-2">
-          {question.hasMedia === "image" && (
+          {question.media && question.media.type === "image" && (
             <span className="inline-flex items-center gap-1 text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded">
               <Image size={14} /> Image
             </span>
           )}
-          {question.hasMedia === "video" && (
+          {question.media && question.media.type === "video" && (
             <span className="inline-flex items-center gap-1 text-xs bg-purple-100 text-purple-700 px-2 py-1 rounded">
               <Video size={14} /> Video
             </span>
@@ -143,7 +95,9 @@ function DraggableQuestionCard({
       </div>
 
       <button
-        onClick={onRemove}
+        onClick={() => {
+          onRemove(question);
+        }}
         className="text-red-500 hover:text-red-700 shrink-0"
         type="button"
       >
@@ -153,25 +107,45 @@ function DraggableQuestionCard({
   );
 }
 
+const initialFormData = {
+  title: "",
+  linkedTopic: "",
+  passingScore: 75,
+  timeLimit: null,
+  enableTimeLimit: false,
+  shuffle: false,
+  instantFeedback: false,
+};
+
 const QuizCreator = () => {
-  const { handbook } = useHandbookContext();
-  const [formData, setFormData] = useState<QuizFormData>({
-    title: "",
-    linkedSubtopic: "",
-    passingScore: 75,
-    timeLimit: null,
-    enableTimeLimit: false,
-    shuffle: false,
-    instantFeedback: false,
-  });
+  const [formData, setFormData] = useState<QuizFormData>(initialFormData);
+
+  const [topics, setTopics] = useState<Topic[]>([]);
 
   const [selectedQuestions, setSelectedQuestions] = useState<Question[]>([]);
   const [showQuestionBank, setShowQuestionBank] = useState(false);
-  const [availableQuestions, setAvailableQuestions] =
-    useState(SAMPLE_QUESTIONS);
+  const [questions, setQuestions] = useState<Question[]>([]);
 
-  const handleSubmit = (e: FormEvent) => {
+  const availableQuestions = questions.filter(
+    (q) => q.topic_id === formData.linkedTopic,
+  );
+
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
+    const data = {
+      ...formData,
+      questions: selectedQuestions.map((q) => q._id),
+    };
+
+    try {
+      const res = await api.post("/quizzes", data);
+      console.log("Quiz created successfully:", res.data);
+      setFormData(initialFormData);
+      setQuestions([...questions, ...selectedQuestions]);
+      setSelectedQuestions([]);
+    } catch (error) {
+      console.error("Error creating quiz:", error);
+    }
   };
 
   const handleDragEnd = (event: DragEndEvent) => {
@@ -179,29 +153,10 @@ const QuizCreator = () => {
 
     if (over && active.id !== over.id) {
       setSelectedQuestions((items) => {
-        const oldIndex = items.findIndex((q) => q.id === active.id);
-        const newIndex = items.findIndex((q) => q.id === over.id);
+        const oldIndex = items.findIndex((q) => q._id === active.id);
+        const newIndex = items.findIndex((q) => q._id === over.id);
         return arrayMove(items, oldIndex, newIndex);
       });
-    }
-  };
-
-  const handleAddQuestion = (question: Question) => {
-    if (!selectedQuestions.find((q) => q.id === question.id)) {
-      setSelectedQuestions([...selectedQuestions, question]);
-      setAvailableQuestions(
-        availableQuestions.filter((q) => q.id !== question.id),
-      );
-    }
-  };
-
-  const handleRemoveQuestion = (questionId: string) => {
-    const removed = selectedQuestions.find((q) => q.id === questionId);
-    if (removed) {
-      setSelectedQuestions(
-        selectedQuestions.filter((q) => q.id !== questionId),
-      );
-      setAvailableQuestions([...availableQuestions, removed]);
     }
   };
 
@@ -220,6 +175,29 @@ const QuizCreator = () => {
       [field]: !prev[field],
     }));
   };
+
+  useEffect(() => {
+    async function fetchTopics() {
+      try {
+        const res = await api.get("/topics");
+        setTopics(res.data.topics);
+      } catch (error) {
+        console.error("Error fetching topics:", error);
+      }
+    }
+
+    async function fetchQuestions() {
+      try {
+        const res = await api.get("/questions");
+        setQuestions(res.data.questions);
+      } catch (error) {
+        console.error("Error fetching questions:", error);
+      }
+    }
+
+    fetchTopics();
+    fetchQuestions();
+  }, []);
 
   return (
     <div className="min-h-screen p-6">
@@ -258,10 +236,10 @@ const QuizCreator = () => {
             </div>
 
             <div className="rounded grid grid-cols-1 md:grid-cols-2 gap-6">
-              {/* Linked Sub-topic */}
+              {/* Linked topic */}
               <div>
                 <Label className="rounded text-sm font-medium text-gray-700 block mb-2">
-                  Linked Sub-topic
+                  Linked Topic
                 </Label>
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
@@ -269,19 +247,22 @@ const QuizCreator = () => {
                       variant="outline"
                       className="rounded w-full justify-between"
                     >
-                      {formData.linkedSubtopic || "Select a sub-topic"}
+                      {formData.linkedTopic
+                        ? topics.find((t) => t._id === formData.linkedTopic)
+                            ?.title || "Select a topic"
+                        : "Select a topic"}
                       <ChevronDown size={16} />
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent className="rounded w-full">
-                    {SUBTOPICS.map((subtopic) => (
+                    {topics.map((topic) => (
                       <DropdownMenuItem
-                        key={subtopic}
-                        onClick={() =>
-                          handleInputChange("linkedSubtopic", subtopic)
-                        }
+                        key={topic._id}
+                        onClick={() => {
+                          handleInputChange("linkedTopic", topic._id);
+                        }}
                       >
-                        {subtopic}
+                        {topic.title}
                       </DropdownMenuItem>
                     ))}
                   </DropdownMenuContent>
@@ -401,15 +382,21 @@ const QuizCreator = () => {
               onDragEnd={handleDragEnd}
             >
               <SortableContext
-                items={selectedQuestions.map((q) => q.id)}
+                items={selectedQuestions.map((q) => q._id)}
                 strategy={verticalListSortingStrategy}
               >
                 <div className="rounded space-y-3">
                   {selectedQuestions.map((question) => (
                     <DraggableQuestionCard
-                      key={question.id}
+                      key={question._id}
                       question={question}
-                      onRemove={() => handleRemoveQuestion(question.id)}
+                      onRemove={(questionToRemove: Question) => {
+                        const filtered = selectedQuestions.filter(
+                          (q) => q._id !== questionToRemove._id,
+                        );
+                        setSelectedQuestions(filtered);
+                        setQuestions((prev) => [...prev, questionToRemove]);
+                      }}
                     />
                   ))}
                 </div>
@@ -489,7 +476,11 @@ const QuizCreator = () => {
         {/* Action Buttons */}
         <div className="rounded flex gap-4 mt-8 justify-end">
           <Button variant="outline">Cancel</Button>
-          <Button className="rounded gap-2" onClick={handleSubmit}>
+          <Button
+            className="rounded gap-2"
+            onClick={handleSubmit}
+            disabled={selectedQuestions.length <= 0}
+          >
             <Plus size={18} />
             Create Quiz
           </Button>
@@ -506,22 +497,27 @@ const QuizCreator = () => {
           <div className="rounded space-y-3 overflow-y-auto max-h-80">
             {availableQuestions.map((question) => (
               <div
-                key={question.id}
+                key={question._id}
                 className="rounded flex items-start justify-between p-4 border  hover:bg-gray-50 transition"
               >
                 <div className="rounded flex-1">
                   <p className="rounded text-sm font-medium text-gray-900">
-                    {question.text}
+                    {question.question}
                   </p>
                   <div className="rounded flex items-center gap-2 mt-2">
-                    {question.hasMedia === "image" && (
+                    {question.media && question.media.type === "image" && (
                       <span className="rounded inline-flex items-center gap-1 text-xs bg-blue-100 text-blue-700 px-2 py-1 ">
                         <Image size={14} /> Image
                       </span>
                     )}
-                    {question.hasMedia === "video" && (
+                    {question.media && question.media.type === "video" && (
                       <span className="rounded inline-flex items-center gap-1 text-xs bg-purple-100 text-purple-700 px-2 py-1 ">
                         <Video size={14} /> Video
+                      </span>
+                    )}
+                    {!question.media && (
+                      <span className="rounded inline-flex items-center gap-1 text-xs bg-gray-100 text-gray-700 px-2 py-1 ">
+                        No media
                       </span>
                     )}
                   </div>
@@ -529,9 +525,12 @@ const QuizCreator = () => {
                 <Button
                   size="sm"
                   onClick={() => {
-                    handleAddQuestion(question);
+                    setSelectedQuestions([...selectedQuestions, question]);
+                    setQuestions((prev) =>
+                      prev.filter((q) => q._id !== question._id),
+                    );
                   }}
-                  className="rounded flex-shrink-0"
+                  className="rounded shrink-0"
                 >
                   <Plus size={16} />
                 </Button>

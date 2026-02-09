@@ -21,6 +21,7 @@ interface Topic {
   title: string;
   order: number;
   sections: Section[];
+  active_quiz?: Quiz;
   updatedAt?: string;
   createdAt?: string;
 }
@@ -55,6 +56,20 @@ interface Question {
   section_id: string;
   user_id: string;
   _id: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+interface Quiz {
+  title: string;
+  linked_topic: string;
+  passing_score: number;
+  time_timit: number | null;
+  enable_time_limit: boolean;
+  shuffle: boolean;
+  instant_feedback: boolean;
+  _id: string;
+  questions?: Question[];
   createdAt: string;
   updatedAt: string;
 }

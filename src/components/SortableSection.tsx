@@ -21,7 +21,6 @@ const SortableSection = ({
   handleDeleteSection,
 }: {
   section: Section;
-  handleEditSectionName: (e: FormEvent, section_id: string) => void;
   handleDeleteSection: (section_id: string) => void;
 }) => {
   const { handbook } = useHandbookContext();

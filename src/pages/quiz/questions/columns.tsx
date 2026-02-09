@@ -26,7 +26,7 @@ export function columns(
       cell: ({ row }) => {
         const question: string = row.getValue("question");
         return (
-          <div className="max-w-48 whitespace-normal wrap-break-word">
+          <div className="max-w-64 whitespace-normal wrap-break-word">
             {question}
           </div>
         );
@@ -42,34 +42,15 @@ export function columns(
     },
     {
       accessorKey: "topic_id",
-      header: "Topic",
+      header: "Reference",
       cell: ({ row }) => {
         const topicId = row.getValue("topic_id");
         const currentTopic = topics.find((t) => t._id === topicId);
         const topicTitle = currentTopic ? currentTopic.title : "N/A";
 
         return (
-          <div className="max-w-24 whitespace-normal wrap-break-word">
+          <div className="max-w-32 whitespace-normal wrap-break-word">
             {topicTitle}
-          </div>
-        );
-      },
-    },
-    {
-      accessorKey: "section_id",
-      header: "Section",
-      cell: ({ row }) => {
-        const sectionId = row.getValue("section_id");
-        const topicId = row.getValue("topic_id");
-        const currentTopic = topics.find((t) => t._id === topicId);
-        const currentSection = currentTopic?.sections.find(
-          (s) => s._id === sectionId,
-        );
-        const sectionTitle = currentSection ? currentSection.title : "N/A";
-
-        return (
-          <div className="max-w-24 whitespace-normal wrap-break-word">
-            {sectionTitle}
           </div>
         );
       },
