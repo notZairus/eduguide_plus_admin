@@ -1,5 +1,6 @@
 interface Handbook {
   _id: string;
+  code: string;
   title: string;
   color?: string;
   description?: string;
@@ -72,4 +73,13 @@ interface Quiz {
   questions?: Question[];
   createdAt: string;
   updatedAt: string;
+}
+
+
+interface User {
+  _id: string,
+  firstName: string,
+  middleName: string,
+  lastName: string,
+  isAdmin: boolean,
 }

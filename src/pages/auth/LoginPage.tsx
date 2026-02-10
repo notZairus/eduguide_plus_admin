@@ -3,6 +3,7 @@ import { useState, type FormEvent } from "react";
 import { api } from "../../lib/api";
 import { Separator } from "../../components/ui/separator";
 import { useNavigate, Link } from "react-router";
+import { useAuthContext } from "../../contexts/AuthContext";
 
 export default function LoginPage() {
   const [loginData, setLoginData] = useState<{
@@ -14,15 +15,15 @@ export default function LoginPage() {
   });
   const [error, setError] = useState("");
   const navigate = useNavigate();
+  const { setAuth } = useAuthContext();
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
 
     try {
       const res = await api.post("/auth/login", loginData);
-      if (res.status === 200) {
-        navigate("/dashboard");
-      }
+      setAuth(res.data.user);
+      navigate("/dashboard");
     } catch (e) {
       setError(e.response.data);
     }
@@ -31,18 +32,20 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-nc-blue">
-      <div className="bg-white h-screen md:h-min w-full md:w-sm rounded shadow-lg p-8">
+    <div className="min-h-screen flex items-center justify-center bg-gray-50">
+      <div className="bg-background h-screen md:h-min w-full md:w-sm rounded shadow-lg p-8">
         <div className="flex flex-col items-center mb-6">
           <div className="w-20 h-20 mb-3 flex items-center justify-center rounded-full border">
             {/* Replace src with your actual logo */}
             <img
               src={nc_logo}
-              alt="NC EduGuide+ Logo"
+              alt="EduGuide+ Logo"
               className="w-full h-full object-contain"
             />
           </div>
-          <h1 className="text-xl font-semibold text-gray-800">NC EduGuide+</h1>
+          <h1 className="font-medium font-mono text-gray-800 text-2xl">
+            EduGuide+
+          </h1>
         </div>
 
         <div className="text-center text-destructive">{error}</div>
@@ -78,7 +81,7 @@ export default function LoginPage() {
 
           <button
             type="submit"
-            className="w-full rounded bg-nc-blue text-white py-2 hover:bg-nc-blue/90 transition"
+            className="w-full rounded border bg-gray-100 text-black py-2 font-semibold hover:bg-gray-200 transition-colors cursor-pointer"
           >
             Login
           </button>

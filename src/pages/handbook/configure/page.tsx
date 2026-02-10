@@ -78,7 +78,17 @@ const HandbookConfigure = () => {
         {/* Edit Form Card */}
         <Card className="rounded">
           <CardHeader>
-            <CardTitle>Edit Handbook App</CardTitle>
+            <div className="flex justify-between items-center">
+              <CardTitle>Edit Handbook App</CardTitle>
+              <p
+                className="text-muted-foreground cursor-copy"
+                onClick={() => {
+                  navigator.clipboard.writeText(handbook.code);
+                }}
+              >
+                {handbook.code}
+              </p>
+            </div>
             <CardDescription>
               Update handbook information and manage topics
             </CardDescription>

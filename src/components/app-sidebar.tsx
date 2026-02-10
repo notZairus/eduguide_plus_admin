@@ -34,6 +34,7 @@ import {
 } from "../components/ui/dropdown-menu";
 import { api } from "../lib/api";
 import { useHandbookContext } from "../contexts/HandbookContext";
+import { useAuthContext } from "../contexts/AuthContext";
 
 // Menu items.
 const items = [
@@ -86,6 +87,7 @@ export function AppSidebar() {
   const { pathname } = useLocation();
   const navigate = useNavigate();
   const { handbook } = useHandbookContext();
+  const { auth } = useAuthContext();
 
   // keep a local, stateful copy of collapsible items so we can use/toggle `open`
   const [groups, setGroups] = useState(() =>
@@ -213,7 +215,7 @@ export function AppSidebar() {
                     </div>
                     <div className="flex-1">
                       <p className="text-md wrap-break-word w-20 font-medium">
-                        Jienelle N. Bautista
+                        { auth?.firstName } { auth?.middleName.split(" ").length === 1 ? `${auth.middleName[0]}.` : `${auth?.middleName.split(" ")[0][0]}${auth?.middleName.split(" ")[1][0]}.` } { auth?.lastName }
                       </p>
                     </div>
                   </div>

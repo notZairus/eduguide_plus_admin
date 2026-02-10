@@ -60,7 +60,7 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-nc-blue">
+    <div className="min-h-screen flex items-center justify-center bg-gray-50">
       <div className="bg-white h-min rounded shadow-lg p-8">
         <div className="flex flex-col items-center mb-6">
           <div className="w-20 h-20 mb-3 flex items-center justify-center rounded-full border">
@@ -71,7 +71,9 @@ export default function RegisterPage() {
               className="w-full h-full object-contain"
             />
           </div>
-          <h1 className="text-xl font-semibold text-gray-800">NC EduGuide+</h1>
+          <h1 className="font-medium font-mono text-gray-800 text-2xl">
+            EduGuide+
+          </h1>
         </div>
 
         <div className="text-center text-destructive">{error}</div>
@@ -183,7 +185,7 @@ export default function RegisterPage() {
 
           <button
             type="submit"
-            className="w-full rounded bg-nc-blue text-white py-2 hover:bg-nc-blue/90 transition"
+            className="w-full rounded border bg-gray-100 text-black py-2 font-semibold hover:bg-gray-200 transition-colors cursor-pointer"
           >
             Register
           </button>
