@@ -1,4 +1,4 @@
-import { useEffect, useState, type FormEvent } from "react";
+import { useEffect, useState } from "react";
 import Loader from "../../../components/Loader";
 import { Button } from "../../../components/ui/button";
 import { Separator } from "../../../components/ui/separator";
@@ -9,11 +9,8 @@ import {
   DialogDescription,
   DialogFooter,
   DialogHeader,
-  DialogTitle,
   DialogTrigger,
 } from "../../../components/ui/dialog";
-import { Input } from "../../../components/ui/input";
-import { Label } from "../../../components/ui/label";
 import { DndContext, type DragEndEvent } from "@dnd-kit/core";
 import {
   arrayMove,
@@ -26,38 +23,32 @@ import { api } from "../../../lib/api";
 import { Link } from "react-router";
 import Topic from "../../../components/Topic";
 import { wait } from "../../../lib/utils";
+import AddTopicDialog from "../../../components/AddTopicDialog";
+import { useHandbookContext } from "../../../contexts/HandbookContext";
 
 const Handbook = () => {
-  const [topics, setTopics] = useState<Topic[]>([]);
-  const [activeTopic, setActiveTopic] = useState<Topic | null>(null);
-  const [sections, setSections] = useState<Section[]>([]);
+  const { topics, setTopics, activeTopic, setActiveTopic } =
+    useHandbookContext();
+  const sections = activeTopic?.sections || [];
 
   const [isDeleting, setIsDeleting] = useState(false);
-  const [isCreating, setIsCreating] = useState(false);
+  const [isCreating] = useState(false);
 
   useEffect(() => {
-    async function fetchTopics() {
-      const res = await api.get("/topics");
-      setTopics(res.data.topics);
-    }
+    if (!activeTopic) return;
 
-    fetchTopics();
-  }, [activeTopic, sections]);
+    const activeTopicIndex = topics.findIndex(
+      (topic) => topic._id === activeTopic._id,
+    );
 
-  async function handleCreateTopic(e: FormEvent) {
-    e.preventDefault();
-    setIsCreating(true);
+    if (activeTopicIndex === -1) return;
+    if (topics[activeTopicIndex] === activeTopic) return;
 
-    const form = e.currentTarget;
-    const formData = new FormData(form as HTMLFormElement);
-    const { title } = Object.fromEntries(formData.entries());
+    const topicsCopy = [...topics];
+    topicsCopy[activeTopicIndex] = activeTopic;
 
-    const res = await api.post("/topics", { title });
-    setTopics([...topics, res.data.topic]);
-
-    await wait(1);
-    setIsCreating(false);
-  }
+    setTopics(topicsCopy);
+  }, [activeTopic, topics, setTopics]);
 
   function handleDragEnd(event: DragEndEvent) {
     const { active, over } = event;
@@ -115,7 +106,6 @@ const Handbook = () => {
                             className="text font-medium text-foreground w-full h-full  flex items-center justify-between cursor-pointer gap-2"
                             onClick={() => {
                               setActiveTopic(t);
-                              setSections(t.sections);
                             }}
                           >
                             <p className="flex-1 w-20 wrap-break-word text-sm">
@@ -186,47 +176,17 @@ const Handbook = () => {
               </SortableContext>
             </DndContext>
           </ScrollArea>
-          <Dialog>
-            <DialogTrigger asChild>
+          <div>
+            <AddTopicDialog>
               <Button className="w-full rounded" size="lg">
                 Create New Topic
               </Button>
-            </DialogTrigger>
-            <DialogContent className="sm:max-w-sm rounded">
-              <form onSubmit={handleCreateTopic} className="space-y-4">
-                <DialogHeader>
-                  <DialogTitle>Create Topic</DialogTitle>
-                  <DialogDescription>
-                    Enter the Topic title here. Click save when you&apos;re
-                    done.
-                  </DialogDescription>
-                </DialogHeader>
-                <div className="grid gap-4">
-                  <div className="grid gap-3">
-                    <Label htmlFor="title">Topic Title</Label>
-                    <Input id="title" name="title" />
-                  </div>
-                </div>
-                <DialogFooter>
-                  <DialogClose asChild>
-                    <Button variant="outline">Cancel</Button>
-                  </DialogClose>
-                  <DialogClose asChild>
-                    <Button type="submit">Create Topic</Button>
-                  </DialogClose>
-                </DialogFooter>
-              </form>
-            </DialogContent>
-          </Dialog>
+            </AddTopicDialog>
+          </div>
         </div>
         <div className="w-full h-full ml-60 p-2">
           {activeTopic ? (
-            <Topic
-              topic={activeTopic as Topic}
-              setActiveTopic={setActiveTopic}
-              sections={sections}
-              setSections={setSections}
-            />
+            <Topic topic={activeTopic as Topic} sections={sections} />
           ) : (
             <div className="w-full h-full flex items-center justify-center text-3xl text-foreground/40 font-medium">
               No Topic Selected.

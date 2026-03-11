@@ -1,69 +1,139 @@
 import { useAuthContext } from "../contexts/AuthContext";
 import { Separator } from "../components/ui/separator";
-import {
-  Card,
-  CardTitle,
-  CardContent,
-  CardHeader,
-  CardDescription,
-} from "../components/ui/card";
+import { Card, CardContent } from "../components/ui/card";
 import { useHandbookContext } from "../contexts/HandbookContext";
+import AddTopicDialog from "../components/AddTopicDialog";
+import { Button } from "../components/ui/button";
+import AddSectionDialog from "../components/AddSectionDialog";
+import AddQuestionDialog from "../components/AddQuestionDialog";
+import { BookOpen, Layers, HelpCircle } from "lucide-react";
+
 const Dashboard = () => {
   const { auth } = useAuthContext();
-  const { handbook } = useHandbookContext();
+  const { topics } = useHandbookContext();
+
+  const totalTopics = topics.length;
+  const totalSections = topics.reduce(
+    (acc, topic) => acc + (topic.sections?.length ?? 0),
+    0,
+  );
+  const totalQuestions = topics.reduce(
+    (acc, topic) => acc + (topic.active_quiz?.questions?.length ?? 0),
+    0,
+  );
+
+  const getInitials = () => {
+    if (!auth) return "";
+    const mi =
+      auth.middleName.split(" ").length === 1
+        ? `${auth.middleName[0]}.`
+        : `${auth.middleName.split(" ")[0][0]}${auth.middleName.split(" ")[1][0]}.`;
+    return `${auth.firstName} ${mi} ${auth.lastName}`;
+  };
+
+  const stats = [
+    {
+      label: "Total Topics",
+      value: totalTopics,
+      icon: BookOpen,
+      description: "Topics in your handbook",
+      color: "text-blue-500",
+      bg: "bg-blue-50 dark:bg-blue-950/30",
+    },
+    {
+      label: "Total Sections",
+      value: totalSections,
+      icon: Layers,
+      description: "Sections across all topics",
+      color: "text-violet-500",
+      bg: "bg-violet-50 dark:bg-violet-950/30",
+    },
+    {
+      label: "Total Questions",
+      value: totalQuestions,
+      icon: HelpCircle,
+      description: "Questions in active quizzes",
+      color: "text-emerald-500",
+      bg: "bg-emerald-50 dark:bg-emerald-950/30",
+    },
+  ];
 
   return (
-    <>
-      <section className="p-4 w-full">
-        <header>
-          <p className="text-2xl">Hello,</p>
-          <h2 className="text-4xl font-medium">
-            {auth?.firstName}{" "}
-            {auth?.middleName.split(" ").length === 1
-              ? `${auth.middleName[0]}.`
-              : `${auth?.middleName.split(" ")[0][0]}${auth?.middleName.split(" ")[1][0]}.`}{" "}
-            {auth?.lastName}
+    <section className="p-6 w-full space-y-8">
+      {/* Header */}
+      <div className="flex items-end justify-between">
+        <div>
+          <p className="text-sm text-muted-foreground font-medium uppercase tracking-widest mb-1">
+            Welcome back
+          </p>
+          <h2 className="text-4xl font-semibold tracking-tight">
+            {getInitials()}
           </h2>
-        </header>
-
-        <Separator className="mb-8 mt-4" />
-
-        <div className="grid grid-cols-4 gap-8">
-          <Card className="h-40">
-            <CardHeader>
-              <CardDescription>Card Description</CardDescription>
-            </CardHeader>
-          </Card>
-          <Card className="h-40">
-            <CardHeader>
-              <CardDescription>Card Description</CardDescription>
-            </CardHeader>
-          </Card>
-          <Card className="h-40">
-            <CardHeader>
-              <CardDescription>Card Description</CardDescription>
-            </CardHeader>
-          </Card>
-          <Card className="h-40">
-            <CardHeader>
-              <CardDescription>Card Description</CardDescription>
-            </CardHeader>
-          </Card>
         </div>
+        <p className="text-sm text-muted-foreground">
+          {new Date().toLocaleDateString("en-US", {
+            weekday: "long",
+            year: "numeric",
+            month: "long",
+            day: "numeric",
+          })}
+        </p>
+      </div>
 
-        <Separator className="my-8" />
+      <Separator />
 
-        <div className="grid grid-cols-4 gap-8">
-          <div
-            className="p-4 rounded flex items-center gap-4 min-h-16"
-            style={{ backgroundColor: handbook?.color }}
-          >
-            <div className="min-h-8 h-full w-1.25 bg-background" />
-            <p className="font-semibold text-background text-xl">New Topic</p>
-          </div>
+      {/* Stats */}
+      <div>
+        <h3 className="text-lg font-medium mb-4">Overview</h3>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          {stats.map(({ label, value, icon: Icon, description, color, bg }) => (
+            <Card key={label} className="border shadow-sm">
+              <CardContent className="pt-6 pb-5 px-6 flex items-start gap-4">
+                <div className={`p-2.5 rounded-lg ${bg} shrink-0`}>
+                  <Icon className={`w-5 h-5 ${color}`} />
+                </div>
+                <div>
+                  <p className="text-3xl font-bold leading-none">{value}</p>
+                  <p className="text-sm font-medium mt-1">{label}</p>
+                  <p className="text-xs text-muted-foreground mt-0.5">
+                    {description}
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
         </div>
-      </section>
-    </>
+      </div>
+
+      <Separator />
+
+      {/* Quick Actions */}
+      <div>
+        <h3 className="text-lg font-medium mb-4">Quick Actions</h3>
+        <div className="flex flex-wrap gap-3">
+          <AddTopicDialog>
+            <Button variant="outline" size="lg" className="gap-2 rounded-lg">
+              <BookOpen className="w-4 h-4 text-blue-500" />
+              New Topic
+            </Button>
+          </AddTopicDialog>
+
+          <AddSectionDialog forDashboard={true}>
+            <Button variant="outline" size="lg" className="gap-2 rounded-lg">
+              <Layers className="w-4 h-4 text-violet-500" />
+              New Section
+            </Button>
+          </AddSectionDialog>
+
+          <AddQuestionDialog forDashboard={true}>
+            <Button variant="outline" size="lg" className="gap-2 rounded-lg">
+              <HelpCircle className="w-4 h-4 text-emerald-500" />
+              New Question
+            </Button>
+          </AddQuestionDialog>
+        </div>
+      </div>
+    </section>
   );
 };
 

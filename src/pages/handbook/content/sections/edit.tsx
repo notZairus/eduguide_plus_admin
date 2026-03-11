@@ -3,25 +3,14 @@ import { SimpleEditor } from "../../../../components/tiptap-templates/simple/sim
 import { Link, useParams } from "react-router";
 import { api } from "../../../../lib/api";
 import { Button } from "../../../../components/ui/button";
-import { SquarePen, ChevronLeft } from "lucide-react";
-import {
-  Dialog,
-  DialogTrigger,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-  DialogClose,
-  DialogFooter,
-} from "../../../../components/ui/dialog";
-import { Label } from "../../../../components/ui/label";
-import { Textarea } from "../../../../components/ui/textarea";
-import { type FormEvent } from "react";
+import { ChevronLeft } from "lucide-react";
 import { Input } from "../../../../components/ui/input";
 import { Card } from "../../../../components/ui/card";
 import Loader from "../../../../components/Loader";
 import { SquarePlay } from "lucide-react";
 import { wait } from "../../../../lib/utils";
+import EditSectionNameDialog from "../../../../components/EditSectionNameDialog";
+import { useHandbookContext } from "../../../../contexts/HandbookContext";
 
 type Media = {
   name: string;
@@ -29,33 +18,18 @@ type Media = {
 };
 
 const SectionEdit = () => {
+  const { id } = useParams();
+  const { topics } = useHandbookContext();
   const [section, setSection] = useState<Section | null>(null);
   const [content, setContent] = useState(null);
   const [medias, setMedias] = useState<Media[]>([]);
   const [storedMedias, setStoredMedias] = useState<StoredMedia[]>([]);
-  const { id } = useParams();
   const fileInputRef = useRef(null);
 
   const [isSaving, setIsSaving] = useState(false);
 
-  async function handleEditSectionName(e: FormEvent) {
-    e.preventDefault();
-
-    const formData = new FormData(e.currentTarget as HTMLFormElement);
-    const { title } = Object.fromEntries(formData.entries());
-
-    const res = await api.patch(`/sections/${section?._id}`, { title });
-    const updatedSection = res.data.section;
-
-    setSection(updatedSection);
-  }
-
-  console.log(medias);
-
   async function handleSaveContent() {
     const formData = new FormData();
-
-    if (!content) return;
 
     formData.append("content", JSON.stringify(content));
     formData.append("medias", JSON.stringify(storedMedias));
@@ -88,7 +62,7 @@ const SectionEdit = () => {
       }
     }
     getSection();
-  }, [id]);
+  }, [id, topics]);
 
   if (!section) {
     return <p>Loading....</p>;
@@ -108,47 +82,7 @@ const SectionEdit = () => {
                 {section?.title}
               </h1>
               <div>
-                <Dialog>
-                  <DialogTrigger asChild>
-                    <SquarePen
-                      size={24}
-                      className="text-nc-blue cursor-pointer"
-                    />
-                  </DialogTrigger>
-                  <DialogContent className="sm:max-w-sm rounded">
-                    <form
-                      onSubmit={handleEditSectionName}
-                      className="space-y-4"
-                    >
-                      <DialogHeader>
-                        <DialogTitle>Edit Section</DialogTitle>
-                        <DialogDescription>
-                          Update the Section title here. Click save when
-                          you&apos; Update the Section title here. Click save
-                          when you&apos;re done.
-                        </DialogDescription>
-                      </DialogHeader>
-                      <div className="grid gap-4">
-                        <div className="grid gap-3">
-                          <Label htmlFor="title">Section Title</Label>
-                          <Textarea
-                            id="title"
-                            name="title"
-                            defaultValue={section.title}
-                          />
-                        </div>
-                      </div>
-                      <DialogFooter>
-                        <DialogClose asChild>
-                          <Button variant="outline">Cancel</Button>
-                        </DialogClose>
-                        <DialogClose asChild>
-                          <Button type="submit">Save Section</Button>
-                        </DialogClose>
-                      </DialogFooter>
-                    </form>
-                  </DialogContent>
-                </Dialog>
+                <EditSectionNameDialog section={section} />
               </div>
             </div>
             <Button size={"lg"} onClick={handleSaveContent}>

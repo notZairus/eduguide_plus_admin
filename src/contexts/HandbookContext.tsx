@@ -1,36 +1,15 @@
-import { createContext, useContext, useEffect, useState } from "react";
-import { api } from "../lib/api";
+import { createContext, useContext } from "react";
 
-const handbookContext = createContext<{
+export const handbookContext = createContext<{
   handbook: Handbook | null;
   setHandbook: (handbook: Handbook | null) => void;
+  topics: Topic[];
+  setTopics: (topics: Topic[]) => void;
+  activeTopic: Topic | null;
+  setActiveTopic: (topic: Topic | null) => void;
+  activeSection: Section | null;
+  setActiveSection: (section: Section | null) => void;
 } | null>(null);
-
-export function HandbookProvider({ children }: { children: React.ReactNode }) {
-  const [handbook, setHandbook] = useState<Handbook | null>(null);
-
-  useEffect(() => {
-    async function getHandbook() {
-      try {
-        const res = await api.get("/handbooks");
-        setHandbook(res.data.handbook);
-      } catch (error) {
-        console.error("Error fetching handbook data:", error);
-      }
-    }
-    getHandbook();
-  }, []);
-
-  if (!handbook) {
-    return <div>Loading...</div>;
-  }
-
-  return (
-    <handbookContext.Provider value={{ handbook, setHandbook }}>
-      {children}
-    </handbookContext.Provider>
-  );
-}
 
 export function useHandbookContext() {
   const context = useContext(handbookContext);

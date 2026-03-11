@@ -7,9 +7,13 @@ import {
   FileText,
   Folder,
   Wrench,
+  LogOut,
+  Settings2,
+  Settings2Icon,
+  UserRoundCog,
 } from "lucide-react";
 import { useState } from "react";
-import nc_logo from "@/assets/images/nc_logo.png";
+import eg_logo from "@/assets/images/eg_logo.png";
 import { Link } from "react-router";
 
 import {
@@ -25,7 +29,6 @@ import {
 } from "../components/ui/sidebar";
 import { SidebarFooter, useSidebar } from "./ui/sidebar";
 import { useLocation, useNavigate } from "react-router";
-import { Separator } from "./ui/separator";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -36,7 +39,6 @@ import { api } from "../lib/api";
 import { useHandbookContext } from "../contexts/HandbookContext";
 import { useAuthContext } from "../contexts/AuthContext";
 
-// Menu items.
 const items = [
   {
     title: "Dashboard",
@@ -82,77 +84,109 @@ const collapsibleItems = [
   },
 ];
 
+function getInitials(first?: string, last?: string): string {
+  return [first?.[0], last?.[0]].filter(Boolean).join("").toUpperCase();
+}
+
+function getDisplayName(
+  first?: string,
+  middle?: string,
+  last?: string,
+): string {
+  const middleAbbr = middle
+    ? middle.split(" ").length === 1
+      ? `${middle[0]}.`
+      : `${middle.split(" ")[0][0]}${middle.split(" ")[1][0]}.`
+    : "";
+  return [first, middleAbbr, last].filter(Boolean).join(" ");
+}
+
 export function AppSidebar() {
   const { state } = useSidebar();
   const { pathname } = useLocation();
   const navigate = useNavigate();
-  const { handbook } = useHandbookContext();
+  const { handbook, setHandbook, setTopics } = useHandbookContext();
   const { auth } = useAuthContext();
 
-  // keep a local, stateful copy of collapsible items so we can use/toggle `open`
   const [groups, setGroups] = useState(() =>
     collapsibleItems.map((g) => ({ ...g })),
   );
 
   async function handleSignOut() {
     try {
-      await api.get("/auth/logout"); // wait for server to process logout
+      await api.get("/auth/logout");
+      setHandbook(null);
+      setTopics([]);
       navigate("/login");
     } catch (error) {
       console.error("Logout failed", error);
     }
   }
 
+  const initials = getInitials(auth?.firstName, auth?.lastName);
+  const displayName = getDisplayName(
+    auth?.firstName,
+    auth?.middleName,
+    auth?.lastName,
+  );
+
   return (
     <Sidebar variant="floating" collapsible="icon">
+      {/* ── Header ── */}
       {state === "expanded" && (
-        <SidebarHeader>
+        <SidebarHeader className="p-0">
           <div
-            style={{ backgroundColor: handbook?.color }}
-            className={`w-full h-full p-4 rounded shadow flex gap-4 flex-col justify-center items-center`}
+            style={{ backgroundColor: handbook?.color ?? "#142e67" }}
+            className="w-full p-4 flex flex-col items-center gap-3"
           >
-            <div className="w-full max-w-24 aspect-square rounded overflow-hidden">
+            <div className="w-16 h-16 rounded-full ring-2 ring-white/30 overflow-hidden bg-white/10 flex items-center justify-center">
               <img
-                src={handbook?.logo?.url || nc_logo}
+                src={handbook?.logo?.url || eg_logo}
                 alt="logo"
-                className="w-full h-full"
+                className="w-full h-full object-cover"
               />
             </div>
-            <div className="font-bold text-white/90 text-center">
-              {handbook?.title}
+            <div className="text-center">
+              <p className="font-semibold text-white text-sm leading-tight">
+                {handbook?.title ?? "EduGuide+"}
+              </p>
+              <p className="text-white/50 text-xs mt-0.5">Admin Portal</p>
             </div>
           </div>
         </SidebarHeader>
       )}
 
-      <Separator className="max-w-4/5 mx-auto" />
-
-      <SidebarContent>
-        <SidebarGroup>
-          <SidebarGroupLabel>Navigations</SidebarGroupLabel>
+      {/* ── Nav ── */}
+      <SidebarContent className="px-2 py-3">
+        <SidebarGroup className="p-0">
+          <SidebarGroupLabel className="px-2 mb-1 text-xs font-medium text-gray-400 uppercase tracking-wider">
+            Navigation
+          </SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
+              {/* Flat items */}
               {items.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton
                     asChild
                     isActive={pathname.startsWith(item.url)}
-                    className="rounded transition-all"
+                    className="rounded-lg transition-all h-9 text-sm font-medium"
                   >
                     <Link to={item.url}>
-                      <item.icon />
+                      <item.icon size={16} />
                       <span>{item.title}</span>
                     </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               ))}
 
+              {/* Collapsible groups */}
               {groups.map((group) => {
                 const isOpen = !!group.open;
                 return (
                   <SidebarMenuItem key={group.name}>
                     <SidebarMenuButton
-                      className="rounded transition-all w-full"
+                      className="rounded-lg transition-all h-9 text-sm font-medium w-full"
                       onClick={() =>
                         setGroups((prev) =>
                           prev.map((g) =>
@@ -168,28 +202,28 @@ export function AppSidebar() {
                         </div>
                         <ChevronDown
                           size={12}
-                          className={`transition-transform ${isOpen ? "rotate-180" : ""}`}
+                          className={`text-gray-400 transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`}
                         />
                       </div>
                     </SidebarMenuButton>
 
                     {isOpen && (
-                      <div className="pl-3 pt-1">
+                      <div className="ml-3 mt-0.5 pl-3 border-l border-gray-200 space-y-0.5">
                         {group.items.map((sub) => (
-                          <div key={sub.title}>
-                            <SidebarMenuButton
-                              asChild
-                              isActive={pathname.startsWith(sub.url)}
+                          <SidebarMenuButton
+                            key={sub.title}
+                            asChild
+                            isActive={pathname.startsWith(sub.url)}
+                            className="rounded-lg h-8 text-sm transition-all"
+                          >
+                            <Link
+                              to={sub.url}
+                              className="flex items-center gap-2"
                             >
-                              <Link
-                                to={sub.url}
-                                className="text-sm rounded-sm flex items-center gap-2"
-                              >
-                                {sub.icon && <sub.icon />}
-                                <span>{sub.title}</span>
-                              </Link>
-                            </SidebarMenuButton>
-                          </div>
+                              {sub.icon && <sub.icon size={14} />}
+                              <span>{sub.title}</span>
+                            </Link>
+                          </SidebarMenuButton>
                         ))}
                       </div>
                     )}
@@ -200,32 +234,54 @@ export function AppSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
+
+      {/* ── Footer ── */}
       {state === "expanded" && (
-        <SidebarFooter>
+        <SidebarFooter className="p-2 border-t border-gray-100">
           <SidebarMenu>
             <SidebarMenuItem>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <div className="w-full bg-white rounded shadow p-2 flex gap-2 cursor-pointer">
-                    <div className="bg-red-400 w-12 h-12 overflow-hidden rounded">
-                      <img
-                        src="https://scontent-mnl1-2.xx.fbcdn.net/v/t39.30808-1/606865534_1181934897474631_5834981792832036002_n.jpg?stp=dst-jpg_s200x200_tt6&_nc_cat=105&ccb=1-7&_nc_sid=e99d92&_nc_eui2=AeGrOxvxBAxB5FEe6nBow8bYCvw-PCl0JDIK_D48KXQkMmCNoNb8HBeW4JjNJxNrBlPN3hL7TRFlb0kTwS13shxH&_nc_ohc=7G93QGE5tVsQ7kNvwHclzw3&_nc_oc=Adl9TxxLTjiPyfcBojr7VCTxcekHVpZGDcCxBCZCehEoc48PEzApiqPvjwGC2Hv2iLY&_nc_zt=24&_nc_ht=scontent-mnl1-2.xx&_nc_gid=nkKn1lmKrhvEsKCilZwXQg&oh=00_AfvThaWBLAD_9FrZ5z_cXOGgJI-AF89e-cP7ygLJ5t5pjw&oe=698B835C"
-                        alt="profile-picture"
-                      />
+                  <div className="flex items-center gap-3 w-full px-2 py-2 rounded-lg cursor-pointer hover:bg-gray-100 transition-colors group">
+                    {/* Avatar with initials */}
+                    <div
+                      style={{ backgroundColor: handbook?.color ?? "#142e67" }}
+                      className="w-9 h-9 rounded-full flex items-center justify-center shrink-0 text-white text-sm font-semibold"
+                    >
+                      {initials || "A"}
                     </div>
-                    <div className="flex-1">
-                      <p className="text-md wrap-break-word w-20 font-medium">
-                        { auth?.firstName } { auth?.middleName.split(" ").length === 1 ? `${auth.middleName[0]}.` : `${auth?.middleName.split(" ")[0][0]}${auth?.middleName.split(" ")[1][0]}.` } { auth?.lastName }
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium text-gray-800 truncate leading-tight">
+                        {displayName || "Admin"}
+                      </p>
+                      <p className="text-xs text-gray-400 truncate leading-tight">
+                        Administrator
                       </p>
                     </div>
+                    <ChevronDown
+                      size={14}
+                      className="text-gray-400 shrink-0 group-hover:text-gray-600 transition-colors"
+                    />
                   </div>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent
-                  side="right"
-                  sideOffset={4}
-                  className="w-[--radix-popper-anchor-width] -translate-y-8 -translate-x-4"
+                  side="top"
+                  align="start"
+                  sideOffset={6}
+                  className="w-(--radix-popper-anchor-width)"
                 >
-                  <DropdownMenuItem onClick={handleSignOut}>
+                  <DropdownMenuItem
+                    onClick={() => navigate("/user-settings")}
+                    className="cursor-pointer"
+                  >
+                    <UserRoundCog size={14} className="mr-2" />
+                    <span>User Settings</span>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    onClick={handleSignOut}
+                    className="text-red-600 focus:text-red-600 focus:bg-red-50 cursor-pointer"
+                  >
+                    <LogOut size={14} className="mr-2" />
                     <span>Sign out</span>
                   </DropdownMenuItem>
                 </DropdownMenuContent>

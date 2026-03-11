@@ -26,7 +26,6 @@ import { useEffect, useState, type FormEvent } from "react";
 import { api } from "../lib/api.js";
 import { Textarea } from "./ui/textarea";
 import SortableSection from "./SortableSection.js";
-import { Input } from "./ui/input";
 import { DndContext, type DragEndEvent } from "@dnd-kit/core";
 import {
   arrayMove,
@@ -34,70 +33,53 @@ import {
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import Loader from "./Loader.js";
+import AddSectionDialog from "./AddSectionDialog.js";
+import { useHandbookContext } from "../contexts/HandbookContext.js";
 
-const Topic = ({
-  topic,
-  setActiveTopic,
-  sections,
-  setSections,
-}: {
-  topic: Topic;
-  setActiveTopic: React.Dispatch<React.SetStateAction<Topic | null>>;
-  sections: Section[];
-  setSections: React.Dispatch<React.SetStateAction<Section[]>>;
-}) => {
+const Topic = () => {
+  const { activeTopic, setActiveTopic } = useHandbookContext();
   const [availableQuizzes, setAvailableQuizzes] = useState<Quiz[] | null>(null);
   const [selectedQuiz, setSelectedQuiz] = useState<Quiz | null>(
-    topic.active_quiz ?? null,
+    activeTopic?.active_quiz ?? null,
   );
   const [useQuizLoading, setUseQuizLoading] = useState(false);
   const [deleteQuizLoading, setDeleteQuizLoading] = useState(false);
 
   useEffect(() => {
-    async function fetchQuizzes() {
+    async function fetchAvailableQuizzes() {
       try {
-        const res = await api.get(`/quizzes/topics/${topic._id}`);
-        setAvailableQuizzes(res.data.quizzes || []);
+        const res = await api.get(`/quizzes/topics/${activeTopic?._id}`);
+        setAvailableQuizzes(res.data.quizzes);
       } catch (e) {
         console.log(e);
+        throw e;
       }
     }
 
-    fetchQuizzes();
-  }, [topic]);
+    fetchAvailableQuizzes();
+  }, [activeTopic]);
 
   async function handleEditTopicTitle(e: FormEvent) {
     e.preventDefault();
 
     const formData = new FormData(e.currentTarget as HTMLFormElement);
     const { title } = Object.fromEntries(formData.entries());
-    const res = await api.patch(`/topics/${topic._id}`, { title });
-    setActiveTopic(res.data.topic);
-  }
-
-  async function handleCreateSection(e: FormEvent) {
-    e.preventDefault();
-    const form = e.currentTarget as HTMLFormElement;
-    const formData = new FormData(form);
-    const data = Object.fromEntries(formData.entries());
-
-    try {
-      const res = await api.post("/sections", {
-        topic_id: topic._id,
-        title: data.title,
-      });
-
-      setSections([...sections, res.data.section]);
-    } catch (e) {
-      console.log(e);
-      throw e;
-    }
+    await api.patch(`/topics/${activeTopic?._id}`, { title });
+    setActiveTopic({
+      ...activeTopic,
+      title: title as string,
+    } as Topic);
   }
 
   async function handleDeleteSection(_id: string) {
     await api.delete(`/sections/${_id}`);
-    const sectionFiltered = sections.filter((s) => s._id !== _id);
-    setSections(sectionFiltered);
+    const sectionFiltered = activeTopic?.sections.filter((s) => s._id !== _id);
+    const activeTopicCopy = {
+      ...activeTopic,
+      sections: sectionFiltered,
+    };
+
+    setActiveTopic(activeTopicCopy as Topic);
   }
 
   async function handleDragEnd(event: DragEndEvent) {
@@ -105,10 +87,18 @@ const Topic = ({
 
     if (active.id == over?.id) return;
 
-    const activeIndex = sections.findIndex((s) => s._id === active.id);
-    const overIndex = sections.findIndex((s) => s._id === over?.id);
+    const activeIndex = activeTopic?.sections.findIndex(
+      (s) => s._id === active.id,
+    );
+    const overIndex = activeTopic?.sections.findIndex(
+      (s) => s._id === over?.id,
+    );
 
-    const newSectionOrder = arrayMove(sections, activeIndex, overIndex);
+    const newSectionOrder = arrayMove(
+      activeTopic?.sections || [],
+      activeIndex as number,
+      overIndex as number,
+    );
 
     newSectionOrder.forEach(async (section, index) => {
       await api.patch(`/sections/${section._id}`, {
@@ -116,12 +106,17 @@ const Topic = ({
       });
     });
 
-    setSections(newSectionOrder);
+    const activeTopicCopy = {
+      ...activeTopic,
+      sections: newSectionOrder,
+    };
+
+    setActiveTopic(activeTopicCopy as Topic);
   }
 
   async function handleUseQuiz() {
     setUseQuizLoading(true);
-    await api.patch(`/topics/${topic._id}`, {
+    await api.patch(`/topics/${activeTopic?._id}`, {
       active_quiz: selectedQuiz?._id,
     });
     setUseQuizLoading(false);
@@ -140,6 +135,7 @@ const Topic = ({
   }
 
   if (!availableQuizzes) return <p>Loading...</p>;
+  if (!activeTopic) return;
 
   return (
     <>
@@ -151,7 +147,7 @@ const Topic = ({
           <div className="w-full flex items-center justify-between gap-4">
             <div className="flex items-center gap-2">
               <h1 className="text-3xl font-medium max-w-sm wrap-break-word">
-                {topic.title}
+                {activeTopic.title}
               </h1>
               <Dialog>
                 <DialogTrigger asChild>
@@ -175,7 +171,7 @@ const Topic = ({
                         <Textarea
                           id="title"
                           name="title"
-                          defaultValue={topic.title}
+                          defaultValue={activeTopic.title}
                         />
                       </div>
                     </div>
@@ -193,39 +189,11 @@ const Topic = ({
             </div>
 
             <div className="flex items-center gap-3">
-              <Dialog>
-                <DialogTrigger asChild>
-                  <Button variant="default" size="sm">
-                    + Add Section
-                  </Button>
-                </DialogTrigger>
-
-                <DialogContent className="sm:max-w-sm rounded">
-                  <form onSubmit={handleCreateSection} className="space-y-4">
-                    <DialogHeader>
-                      <DialogTitle>Create Section</DialogTitle>
-                      <DialogDescription>
-                        Enter the Section title here. Click save when
-                        you&apos;re done.
-                      </DialogDescription>
-                    </DialogHeader>
-                    <div className="grid gap-4">
-                      <div className="grid gap-3">
-                        <Label htmlFor="title">Section Title</Label>
-                        <Input id="title" name="title" />
-                      </div>
-                    </div>
-                    <DialogFooter>
-                      <DialogClose asChild>
-                        <Button variant="outline">Cancel</Button>
-                      </DialogClose>
-                      <DialogClose asChild>
-                        <Button type="submit">Create Section</Button>
-                      </DialogClose>
-                    </DialogFooter>
-                  </form>
-                </DialogContent>
-              </Dialog>
+              <AddSectionDialog>
+                <Button variant="default" size="sm">
+                  + Add Section
+                </Button>
+              </AddSectionDialog>
             </div>
           </div>
 
@@ -308,18 +276,18 @@ const Topic = ({
         <Separator className="mt-3" />
 
         <main className="flex-1 overflow-y-auto mt-4">
-          {sections.length === 0 ? (
+          {activeTopic && activeTopic.sections.length === 0 ? (
             <div className="text-center py-8 text-gray-500">
               No sections yet. Click "Add Section" to get started.
             </div>
           ) : (
             <DndContext onDragEnd={handleDragEnd}>
               <SortableContext
-                items={sections.map((s) => s._id)}
+                items={activeTopic.sections.map((s) => s._id)}
                 strategy={verticalListSortingStrategy}
               >
                 <div className="space-y-4">
-                  {sections.map((section) => (
+                  {activeTopic.sections.map((section) => (
                     <SortableSection
                       key={section._id}
                       section={section}

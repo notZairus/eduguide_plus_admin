@@ -70,6 +70,15 @@ const App = () => {
             }
           />
 
+          <Route
+            path="/user-settings"
+            element={
+              <MainLayout>
+                <QuestionBank />
+              </MainLayout>
+            }
+          />
+
           <Route path="/handbook/sections/:id" element={<SectionEdit />} />
         </Route>
       </Routes>

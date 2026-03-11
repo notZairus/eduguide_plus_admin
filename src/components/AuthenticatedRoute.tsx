@@ -1,9 +1,9 @@
-import { useEffect, useState, type JSX } from "react";
+import { useEffect, type JSX } from "react";
 import { isAuthenticated } from "../lib/auth";
 import { useNavigate } from "react-router";
-import { HandbookProvider } from "../contexts/HandbookContext";
 import { Outlet } from "react-router";
 import { useAuthContext } from "../contexts/AuthContext";
+import HandbookProvider from "../providers/HandbookProvider";
 
 export default function AuthenticatedRoute(): JSX.Element | null {
   const { auth, setAuth } = useAuthContext();
@@ -17,7 +17,7 @@ export default function AuthenticatedRoute(): JSX.Element | null {
 
     checkAuth();
   }, []);
-  
+
   if (!auth) {
     navigate("/login");
   }

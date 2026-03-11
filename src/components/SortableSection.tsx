@@ -1,7 +1,6 @@
 import { Pencil, Trash2, Eye } from "lucide-react";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import type { FormEvent } from "react";
 import { Button } from "./ui/button";
 import {
   Dialog,

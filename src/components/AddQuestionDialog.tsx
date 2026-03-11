@@ -19,13 +19,14 @@ import { RadioGroup, RadioGroupItem } from "../components/ui/radio-group";
 import { Card, CardContent, CardTitle } from "../components/ui/card";
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
-import { Plus, Upload } from "lucide-react";
+import { Upload } from "lucide-react";
 import { ScrollArea } from "./ui/scroll-area";
 import { Label } from "@radix-ui/react-label";
 import { useRef, useState, type FormEvent } from "react";
 import { api } from "../lib/api";
 import Loader from "./Loader";
 import ReactPlayer from "react-player";
+import { useHandbookContext } from "../contexts/HandbookContext";
 
 const initialData = {
   topic: "",
@@ -37,12 +38,15 @@ const initialData = {
 };
 
 const AddQuestionDialog = ({
-  topics,
   setQuestions,
+  forDashboard = false,
+  children,
 }: {
-  topics: Topic[];
-  setQuestions: React.Dispatch<React.SetStateAction<Question[]>>;
+  setQuestions?: React.Dispatch<React.SetStateAction<Question[]>> | null;
+  forDashboard?: boolean;
+  children: React.ReactNode;
 }) => {
+  const { topics } = useHandbookContext();
   const [data, setData] = useState(initialData);
   const [choices, setChoices] = useState(Array.from({ length: 4 }));
   const [media, setMedia] = useState<{
@@ -74,7 +78,8 @@ const AddQuestionDialog = ({
 
     try {
       const res = await api.post("/questions", formData);
-      setQuestions((prev) => [...prev, res.data.question]);
+
+      if (setQuestions) setQuestions((prev) => [...prev, res.data.question]);
 
       setMedia(null);
       setData({
@@ -95,12 +100,7 @@ const AddQuestionDialog = ({
       <Loader show={isCreating} text="Creating..." />
 
       <Dialog>
-        <DialogTrigger asChild>
-          <Button>
-            <Plus size={16} />
-            Add Question
-          </Button>
-        </DialogTrigger>
+        <DialogTrigger asChild>{children}</DialogTrigger>
         <DialogContent className="rounded min-w-2xl flex flex-col">
           <DialogHeader>
             <DialogTitle>Add Question</DialogTitle>
@@ -108,6 +108,9 @@ const AddQuestionDialog = ({
               Create a new question to add to your question bank
             </DialogDescription>
           </DialogHeader>
+
+          {forDashboard && <p>hello</p>}
+
           <form onSubmit={handleSubmit}>
             <div className="flex-1">
               <ScrollArea className="w-full h-90 p-1">

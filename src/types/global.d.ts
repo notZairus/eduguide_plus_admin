@@ -75,11 +75,10 @@ interface Quiz {
   updatedAt: string;
 }
 
-
 interface User {
-  _id: string,
-  firstName: string,
-  middleName: string,
-  lastName: string,
-  isAdmin: boolean,
+  _id: string;
+  firstName: string;
+  middleName: string;
+  lastName: string;
+  isAdmin: boolean;
 }

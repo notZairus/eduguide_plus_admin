@@ -11,8 +11,20 @@ import {
 } from "@/components/ui/dropdown-menu";
 import EditQuestionDialog from "../../../components/EditQuestionDialog";
 
-// This type is used to define the shape of our data.
-// You can use a Zod schema here if you want.
+const typeConfig: Record<string, { label: string; className: string }> = {
+  "multiple-choice": {
+    label: "Multiple Choice",
+    className: "bg-violet-100 text-violet-700",
+  },
+  identification: {
+    label: "Identification",
+    className: "bg-amber-100 text-amber-700",
+  },
+  "true-or-false": {
+    label: "True or False",
+    className: "bg-teal-100 text-teal-700",
+  },
+};
 
 export function columns(
   handleDelete: (question_id: string) => void,
@@ -26,9 +38,9 @@ export function columns(
       cell: ({ row }) => {
         const question: string = row.getValue("question");
         return (
-          <div className="max-w-64 whitespace-normal wrap-break-word">
+          <p className="max-w-sm text-sm text-gray-800 font-medium leading-snug line-clamp-2">
             {question}
-          </div>
+          </p>
         );
       },
     },
@@ -37,21 +49,34 @@ export function columns(
       header: "Type",
       cell: ({ row }) => {
         const type: string = row.getValue("type");
-        return type.charAt(0).toUpperCase() + type.slice(1);
+        const conf = typeConfig[type];
+        if (conf) {
+          return (
+            <span
+              className={`inline-flex items-center text-xs font-medium px-2 py-0.5 rounded-full ${conf.className}`}
+            >
+              {conf.label}
+            </span>
+          );
+        }
+        return (
+          <span className="text-xs text-gray-600 capitalize">
+            {type.replace(/-/g, " ")}
+          </span>
+        );
       },
     },
     {
       accessorKey: "topic_id",
-      header: "Reference",
+      header: "Topic",
       cell: ({ row }) => {
         const topicId = row.getValue("topic_id");
         const currentTopic = topics.find((t) => t._id === topicId);
-        const topicTitle = currentTopic ? currentTopic.title : "N/A";
-
+        const topicTitle = currentTopic ? currentTopic.title : "—";
         return (
-          <div className="max-w-32 whitespace-normal wrap-break-word">
+          <span className="inline-flex items-center text-xs bg-gray-100 text-gray-700 px-2 py-0.5 rounded-full max-w-36 truncate">
             {topicTitle}
-          </div>
+          </span>
         );
       },
     },
@@ -60,7 +85,15 @@ export function columns(
       header: "Date Created",
       cell: ({ row }) => {
         const date = new Date(row.getValue("createdAt"));
-        return date.toLocaleString();
+        return (
+          <span className="text-xs text-gray-500">
+            {date.toLocaleDateString(undefined, {
+              year: "numeric",
+              month: "short",
+              day: "numeric",
+            })}
+          </span>
+        );
       },
     },
     {
@@ -87,7 +120,7 @@ export function columns(
                 />
               </DropdownMenuItem>
               <DropdownMenuItem
-                className="text-destructive"
+                className="text-destructive focus:text-destructive"
                 onClick={() => handleDelete(question._id)}
                 asChild
               >
