@@ -13,6 +13,7 @@ import RegisterPage from "./pages/auth/RegisterPage";
 import QuestionBank from "./pages/quiz/questions/page";
 import QuizCreator from "./pages/quiz/QuizCreator";
 import AuthenticatedRoute from "./components/AuthenticatedRoute";
+import UserSettings from "./pages/UserSettings";
 
 const App = () => {
   return (
@@ -74,7 +75,7 @@ const App = () => {
             path="/user-settings"
             element={
               <MainLayout>
-                <QuestionBank />
+                <UserSettings />
               </MainLayout>
             }
           />

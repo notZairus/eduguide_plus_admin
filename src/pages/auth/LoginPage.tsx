@@ -44,9 +44,6 @@ export default function LoginPage() {
     <div className="min-h-screen flex items-center justify-center bg-[#142e67] p-4">
       {/* Card */}
       <div className="w-full max-w-sm bg-white rounded-2xl shadow-2xl overflow-hidden">
-        {/* Top accent bar */}
-        <div className="h-1.5 w-full bg-linear-to-r from-blue-500 via-blue-700 to-[#142e67]" />
-
         <div className="p-8">
           {/* Logo + branding */}
           <div className="flex flex-col items-center mb-8">
