@@ -14,6 +14,8 @@ import QuestionBank from "./pages/quiz/questions/page";
 import QuizCreator from "./pages/quiz/QuizCreator";
 import AuthenticatedRoute from "./components/AuthenticatedRoute";
 import UserSettings from "./pages/UserSettings";
+import MobileLayout from "./layouts/MobileLayout";
+import ContentPreview from "./pages/ContentPreview";
 
 const App = () => {
   return (
@@ -81,6 +83,15 @@ const App = () => {
           />
 
           <Route path="/handbook/sections/:id" element={<SectionEdit />} />
+
+          <Route
+            path="/handbook/sections/:id/preview"
+            element={
+              <MobileLayout>
+                <ContentPreview />
+              </MobileLayout>
+            }
+          />
         </Route>
       </Routes>
     </>

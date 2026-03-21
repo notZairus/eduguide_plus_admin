@@ -51,7 +51,9 @@ const SortableSection = ({
         </div>
         <div className="flex gap-4 items-center ml-auto mr-8">
           <div className="w-8 cursor-pointer rounded flex items-center justify-center">
-            <Eye size={20} className="text-nc-blue cursor-pointer" />
+            <Link to={`/handbook/sections/${section._id}/preview`}>
+              <Eye size={20} className="text-nc-blue cursor-pointer" />
+            </Link>
           </div>
           <div className="w-8 cursor-pointer rounded flex items-center justify-center">
             <Link to={`/handbook/sections/${section._id}`}>

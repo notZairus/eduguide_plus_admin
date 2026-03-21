@@ -5,6 +5,8 @@ export const handbookContext = createContext<{
   setHandbook: (handbook: Handbook | null) => void;
   topics: Topic[];
   setTopics: (topics: Topic[]) => void;
+  sections: Section[];
+  setSections: (sections: Section[]) => void;
   activeTopic: Topic | null;
   setActiveTopic: (topic: Topic | null) => void;
   activeSection: Section | null;

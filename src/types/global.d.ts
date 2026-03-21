@@ -37,7 +37,7 @@ interface Section {
   title?: string;
   order: number;
   content: unknown;
-  medias: StoredMedia;
+  medias: StoredMedia[];
   updatedAt?: string;
   createdAt?: string;
 }

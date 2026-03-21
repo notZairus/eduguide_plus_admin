@@ -1,0 +1,124 @@
+import { useHandbookContext } from "../contexts/HandbookContext";
+import { ScrollArea, ScrollBar } from "../components/ui/scroll-area";
+import { useParams } from "react-router";
+import { jsonToHTML } from "../lib/utils";
+import { useState } from "react";
+import ReactPlayer from "react-player";
+
+const ContentPreview = () => {
+  const { sections, handbook } = useHandbookContext();
+  const { id } = useParams();
+  const section = sections.find((sec) => sec._id === id);
+  const [activeTab, setActiveTab] = useState("content");
+
+  if (!section) {
+    return "No Section";
+  }
+
+  console.log(section);
+
+  return (
+    <ScrollArea className="bg-[#e5eaee] overflow-hidden">
+      {/* Header */}
+      <div
+        className="text-white h-14 px-4 flex items-center"
+        style={{ backgroundColor: (handbook as Handbook).color }}
+      >
+        <h1 className="text-sm font-semibold">{section?.title}</h1>
+      </div>
+
+      {/* Medias */}
+
+      {section?.medias.length ? (
+        <ScrollArea className="w-70 py-3 bg-black/10 ">
+          <div className="px-4 w-full flex items-center justify-center space-x-4">
+            {section?.medias.map((media) => {
+              return (
+                <div
+                  key={media.url}
+                  className={`w-56 overflow-hidden bg-white rounded-xl shadow ${section?.medias.length === 1 ? "mx-auto" : "aspect-12/8"}`}
+                >
+                  {media.type.startsWith("image") ? (
+                    <img
+                      src={media.url}
+                      className="w-full h-full object-cover rounded-xl"
+                    />
+                  ) : (
+                    <ReactPlayer
+                      src={media.url}
+                      controls
+                      width="100%"
+                      className="w-full h-full object-cover"
+                    />
+                  )}
+                </div>
+              );
+            })}
+
+            <div></div>
+          </div>
+
+          <ScrollBar orientation="horizontal" />
+        </ScrollArea>
+      ) : (
+        ""
+      )}
+
+      {/* Content Section */}
+      <div className="w-full">
+        <div className="w-full h-12 bg-white rounded-t-md overflow-hidden flex items-center justify-center border">
+          <button
+            className={`flex-1 text-xs h-full rounded-none bg-white ${activeTab === "content" ? "border-b-2 border-blue-500 text-blue-500" : ""}`}
+            onClick={() => setActiveTab("content")}
+          >
+            Content
+          </button>
+          <button
+            className={`flex-1 text-xs h-full rounded-none bg-white ${activeTab === "summary" ? "border-b-2 border-blue-500 text-blue-500" : ""}`}
+            onClick={() => setActiveTab("summary")}
+          >
+            Summary
+          </button>
+        </div>
+
+        {/* Actual Content */}
+
+        {activeTab === "content" && (
+          <div
+            className={` 
+          bg-white text-xs leading-5 p-4 tracking-wide text-justify space-y-4
+
+          [&_p]:mb-[18px]
+
+          [&_strong]:font-bold
+          [&_em]:italic
+
+          [&_ul]:pl-[22px] [&_ul]:mb-[16px] [&_ul]:list-disc
+          [&_ol]:pl-[22px] [&_ol]:mb-[16px] [&_ol]:list-decimal
+
+          [&_li]:mb-[8px]
+
+          [&_h1]:text-[30px] [&_h1]:font-bold [&_h1]:mt-[12px] [&_h1]:mb-[16px]
+          [&_h2]:text-[26px] [&_h2]:font-bold [&_h2]:mt-[10px] [&_h2]:mb-[14px]
+          [&_h3]:text-[22px] [&_h3]:font-semibold [&_h3]:mt-[8px] [&_h3]:mb-[12px]
+          [&_h4]:text-[20px] [&_h4]:font-semibold [&_h4]:mt-[6px] [&_h4]:mb-[10px]
+          [&_h5]:text-[18px] [&_h5]:font-semibold [&_h5]:mb-[8px]
+          [&_h6]:text-[16px] [&_h6]:font-semibold [&_h6]:mb-[6px]
+
+          [&_a]:text-blue-500 [&_a]:underline
+        `}
+            dangerouslySetInnerHTML={{ __html: jsonToHTML(section?.content) }}
+          />
+        )}
+
+        {activeTab === "summary" && (
+          <div className="bg-white text-xs leading-5 p-4 tracking-wide text-justify space-y-4">
+            {section.summary || "No summary available."}
+          </div>
+        )}
+      </div>
+    </ScrollArea>
+  );
+};
+
+export default ContentPreview;
