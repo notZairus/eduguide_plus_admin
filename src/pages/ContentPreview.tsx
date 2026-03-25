@@ -107,13 +107,17 @@ const ContentPreview = () => {
 
           [&_a]:text-blue-500 [&_a]:underline
         `}
-            dangerouslySetInnerHTML={{ __html: jsonToHTML(section?.content) }}
+            dangerouslySetInnerHTML={{
+              __html: section.content
+                ? jsonToHTML(section?.content)
+                : "<p>No content available.</p>",
+            }}
           />
         )}
 
         {activeTab === "summary" && (
           <div className="bg-white text-xs leading-5 p-4 tracking-wide text-justify space-y-4">
-            {section.summary || "No summary available."}
+            {section?.summary || "No summary available."}
           </div>
         )}
       </div>

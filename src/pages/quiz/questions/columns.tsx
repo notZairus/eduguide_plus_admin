@@ -27,7 +27,7 @@ const typeConfig: Record<string, { label: string; className: string }> = {
 };
 
 export function columns(
-  handleDelete: (question_id: string) => void,
+  handleDeleteClick: (question_id: string) => void,
   topics: Topic[],
   setQuestions: React.Dispatch<React.SetStateAction<Question[]>>,
 ): ColumnDef<Question>[] {
@@ -121,7 +121,7 @@ export function columns(
               </DropdownMenuItem>
               <DropdownMenuItem
                 className="text-destructive focus:text-destructive"
-                onClick={() => handleDelete(question._id)}
+                onClick={() => handleDeleteClick(question._id)}
                 asChild
               >
                 <p className="text-sm cursor-pointer">Delete</p>

@@ -50,18 +50,13 @@ const items = [
 const collapsibleItems = [
   {
     icon: BookMarked,
-    name: "Handbook App",
+    name: "Handbook",
     open: true,
     items: [
       {
         title: "Content",
         url: "/handbook/contents",
         icon: FileText,
-      },
-      {
-        title: "Configure",
-        url: "/handbook/configure",
-        icon: Wrench,
       },
     ],
   },
@@ -270,6 +265,13 @@ export function AppSidebar() {
                   sideOffset={6}
                   className="w-(--radix-popper-anchor-width)"
                 >
+                  <DropdownMenuItem
+                    onClick={() => navigate("/handbook/configure")}
+                    className="cursor-pointer"
+                  >
+                    <Wrench size={14} className="mr-2" />
+                    <span>Application Settings</span>
+                  </DropdownMenuItem>
                   <DropdownMenuItem
                     onClick={() => navigate("/user-settings")}
                     className="cursor-pointer"

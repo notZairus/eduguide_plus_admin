@@ -11,6 +11,7 @@ import { Highlight } from "@tiptap/extension-highlight";
 import { Subscript } from "@tiptap/extension-subscript";
 import { Superscript } from "@tiptap/extension-superscript";
 import { Selection } from "@tiptap/extensions";
+import { generateText } from "@tiptap/core";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -57,4 +58,26 @@ export function jsonToHTML(tiptapJSON) {
   const html = generateHTML(tiptapJSON, extensions);
 
   return html;
+}
+
+export function jsonToText(tiptapJSON) {
+  const extensions = [
+    TableKit.configure({ table: { resizable: true } }),
+    StarterKit.configure({
+      horizontalRule: false,
+      link: { openOnClick: false, enableClickSelection: true },
+    }),
+    TextAlign.configure({ types: ["heading", "paragraph"] }),
+    TaskList,
+    TaskItem.configure({ nested: true }),
+    Highlight.configure({ multicolor: true }),
+    Image,
+    Typography,
+    Superscript,
+    Subscript,
+    Selection,
+  ];
+  const text = generateText(tiptapJSON, extensions);
+
+  return text;
 }

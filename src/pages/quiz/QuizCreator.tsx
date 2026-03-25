@@ -23,12 +23,13 @@ import {
   Dialog,
   DialogContent,
   DialogDescription,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
 } from "../../components/ui/dialog";
+import Loader from "../../components/Loader";
 
 import {
-  Settings,
   Plus,
   X,
   GripVertical,
@@ -229,6 +230,8 @@ const QuizCreator = () => {
   const [selectedQuestions, setSelectedQuestions] = useState<Question[]>([]);
   const [showQuestionBank, setShowQuestionBank] = useState(false);
   const [questions, setQuestions] = useState<Question[]>([]);
+  const [isCreating, setIsCreating] = useState(false);
+  const [isSuccessOpen, setIsSuccessOpen] = useState(false);
 
   const availableQuestions = questions.filter(
     (q) => q.topic_id === formData.linkedTopic,
@@ -247,13 +250,17 @@ const QuizCreator = () => {
       questions: selectedQuestions.map((q) => q._id),
     };
     try {
+      setIsCreating(true);
       const res = await api.post("/quizzes", data);
       console.log("Quiz created successfully:", res.data);
       setFormData(initialFormData);
       setQuestions([...questions, ...selectedQuestions]);
       setSelectedQuestions([]);
+      setIsSuccessOpen(true);
     } catch (error) {
       console.error("Error creating quiz:", error);
+    } finally {
+      setIsCreating(false);
     }
   };
 
@@ -312,355 +319,362 @@ const QuizCreator = () => {
         : "text-red-500";
 
   return (
-    <div className="min-h-screen p-6">
-      <div className="max-w-4xl mx-auto space-y-6">
-        {/* Page Header */}
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="p-2 rounded-lg bg-blue-50">
-              <ClipboardList className="w-5 h-5 text-blue-600" />
-            </div>
-            <div>
-              <h2 className="text-2xl font-semibold tracking-tight">
-                Create New Quiz
-              </h2>
-              <p className="text-sm text-muted-foreground">
-                Build and configure a new quiz.
-              </p>
+    <>
+      <Loader show={isCreating} text="Creating quiz..." />
+
+      <div className="min-h-screen p-6">
+        <div className="max-w-4xl mx-auto space-y-6">
+          {/* Page Header */}
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="p-2 rounded-lg bg-blue-50">
+                <ClipboardList className="w-5 h-5 text-blue-600" />
+              </div>
+              <div>
+                <h2 className="text-2xl font-semibold tracking-tight">
+                  Create New Quiz
+                </h2>
+                <p className="text-sm text-muted-foreground">
+                  Build and configure a new quiz.
+                </p>
+              </div>
             </div>
           </div>
-        </div>
 
-        <Separator />
+          <Separator />
 
-        {/* ── Step 1: Quiz Identity ── */}
-        <Card className="p-6 mb-5 bg-white shadow-sm border border-gray-200">
-          <SectionHeader
-            step={1}
-            icon={<BookOpen size={15} className="text-gray-500" />}
-            title="Quiz Identity"
-            subtitle="Basic information about this quiz"
-          />
+          {/* ── Step 1: Quiz Identity ── */}
+          <Card className="p-6 mb-5 bg-white shadow-sm border border-gray-200">
+            <SectionHeader
+              step={1}
+              icon={<BookOpen size={15} className="text-gray-500" />}
+              title="Quiz Identity"
+              subtitle="Basic information about this quiz"
+            />
 
-          <div className="space-y-5">
-            <div>
-              <Label
-                htmlFor="quiz-title"
-                className="text-sm font-medium text-gray-700 mb-1.5 block"
-              >
-                Quiz Title <span className="text-red-400">*</span>
-              </Label>
-              <Input
-                id="quiz-title"
-                placeholder="e.g., Admission Policy Mastery"
-                value={formData.title}
-                onChange={(e) => handleInputChange("title", e.target.value)}
-                className="w-full"
-              />
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-              <div>
-                <Label className="text-sm font-medium text-gray-700 mb-1.5 block">
-                  Linked Topic <span className="text-red-400">*</span>
-                </Label>
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button
-                      variant="outline"
-                      className="w-full justify-between font-normal text-gray-700"
-                    >
-                      <span className="truncate">
-                        {formData.linkedTopic
-                          ? (topics.find((t) => t._id === formData.linkedTopic)
-                              ?.title ?? "Select a topic")
-                          : "Select a topic"}
-                      </span>
-                      <ChevronDown
-                        size={14}
-                        className="text-gray-400 shrink-0"
-                      />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent className="w-(--radix-dropdown-menu-trigger-width) max-h-52 overflow-y-auto">
-                    {topics.map((topic) => (
-                      <DropdownMenuItem
-                        key={topic._id}
-                        onClick={() =>
-                          handleInputChange("linkedTopic", topic._id)
-                        }
-                        className={
-                          formData.linkedTopic === topic._id
-                            ? "bg-blue-50 text-blue-700"
-                            : ""
-                        }
-                      >
-                        {topic.title}
-                      </DropdownMenuItem>
-                    ))}
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </div>
-
+            <div className="space-y-5">
               <div>
                 <Label
-                  htmlFor="passing-score"
+                  htmlFor="quiz-title"
                   className="text-sm font-medium text-gray-700 mb-1.5 block"
                 >
-                  Passing Score
+                  Quiz Title <span className="text-red-400">*</span>
                 </Label>
-                <div className="flex items-center gap-3">
-                  <div className="relative w-20">
-                    <Input
-                      id="passing-score"
-                      type="number"
-                      min="0"
-                      max="100"
-                      value={formData.passingScore}
-                      onChange={(e) =>
-                        handleInputChange(
-                          "passingScore",
-                          Math.min(
-                            100,
-                            Math.max(0, parseInt(e.target.value) || 0),
-                          ),
-                        )
-                      }
-                      className="pr-6 text-center"
-                    />
-                    <span className="absolute right-2 top-1/2 -translate-y-1/2 text-xs text-gray-400 pointer-events-none">
-                      %
+                <Input
+                  id="quiz-title"
+                  placeholder="e.g., Admission Policy Mastery"
+                  value={formData.title}
+                  onChange={(e) => handleInputChange("title", e.target.value)}
+                  className="w-full"
+                />
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                <div>
+                  <Label className="text-sm font-medium text-gray-700 mb-1.5 block">
+                    Linked Topic <span className="text-red-400">*</span>
+                  </Label>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button
+                        variant="outline"
+                        className="w-full justify-between font-normal text-gray-700"
+                      >
+                        <span className="truncate">
+                          {formData.linkedTopic
+                            ? (topics.find(
+                                (t) => t._id === formData.linkedTopic,
+                              )?.title ?? "Select a topic")
+                            : "Select a topic"}
+                        </span>
+                        <ChevronDown
+                          size={14}
+                          className="text-gray-400 shrink-0"
+                        />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent className="w-(--radix-dropdown-menu-trigger-width) max-h-52 overflow-y-auto">
+                      {topics.map((topic) => (
+                        <DropdownMenuItem
+                          key={topic._id}
+                          onClick={() =>
+                            handleInputChange("linkedTopic", topic._id)
+                          }
+                          className={
+                            formData.linkedTopic === topic._id
+                              ? "bg-blue-50 text-blue-700"
+                              : ""
+                          }
+                        >
+                          {topic.title}
+                        </DropdownMenuItem>
+                      ))}
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </div>
+
+                <div>
+                  <Label
+                    htmlFor="passing-score"
+                    className="text-sm font-medium text-gray-700 mb-1.5 block"
+                  >
+                    Passing Score
+                  </Label>
+                  <div className="flex items-center gap-3">
+                    <div className="relative w-20">
+                      <Input
+                        id="passing-score"
+                        type="number"
+                        min="0"
+                        max="100"
+                        value={formData.passingScore}
+                        onChange={(e) =>
+                          handleInputChange(
+                            "passingScore",
+                            Math.min(
+                              100,
+                              Math.max(0, parseInt(e.target.value) || 0),
+                            ),
+                          )
+                        }
+                        className="pr-6 text-center"
+                      />
+                      <span className="absolute right-2 top-1/2 -translate-y-1/2 text-xs text-gray-400 pointer-events-none">
+                        %
+                      </span>
+                    </div>
+                    <div className="flex-1">
+                      <input
+                        type="range"
+                        min="0"
+                        max="100"
+                        value={formData.passingScore}
+                        onChange={(e) =>
+                          handleInputChange(
+                            "passingScore",
+                            parseInt(e.target.value),
+                          )
+                        }
+                        className="w-full accent-blue-600 cursor-pointer"
+                      />
+                    </div>
+                    <span
+                      className={`text-sm font-semibold w-10 text-right ${passingScoreColor}`}
+                    >
+                      {formData.passingScore}%
                     </span>
                   </div>
-                  <div className="flex-1">
-                    <input
-                      type="range"
-                      min="0"
-                      max="100"
-                      value={formData.passingScore}
-                      onChange={(e) =>
-                        handleInputChange(
-                          "passingScore",
-                          parseInt(e.target.value),
-                        )
-                      }
-                      className="w-full accent-blue-600 cursor-pointer"
-                    />
-                  </div>
-                  <span
-                    className={`text-sm font-semibold w-10 text-right ${passingScoreColor}`}
-                  >
-                    {formData.passingScore}%
-                  </span>
                 </div>
               </div>
+
+              <Separator />
+
+              <div>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Timer size={15} className="text-gray-400" />
+                    <div>
+                      <Label className="text-sm font-medium text-gray-700">
+                        Time Limit
+                      </Label>
+                      <p className="text-xs text-gray-400">
+                        Set a maximum duration for this quiz
+                      </p>
+                    </div>
+                  </div>
+                  <Toggle
+                    enabled={formData.enableTimeLimit}
+                    onToggle={() => handleToggle("enableTimeLimit")}
+                  />
+                </div>
+                {formData.enableTimeLimit && (
+                  <div className="mt-3 flex items-center gap-2">
+                    <Input
+                      type="number"
+                      min="1"
+                      placeholder="e.g., 30"
+                      value={formData.timeLimit ?? ""}
+                      onChange={(e) =>
+                        handleInputChange(
+                          "timeLimit",
+                          e.target.value ? parseInt(e.target.value) : null,
+                        )
+                      }
+                      className="w-32"
+                    />
+                    <span className="text-sm text-gray-500">minutes</span>
+                  </div>
+                )}
+              </div>
+            </div>
+          </Card>
+
+          {/* ── Step 2: Questions ── */}
+          <Card className="p-6 mb-5 bg-white shadow-sm border border-gray-200">
+            <div className="flex items-start justify-between mb-6">
+              <div className="flex items-start gap-3">
+                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-blue-600 text-white text-sm font-semibold">
+                  2
+                </div>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <ClipboardList size={15} className="text-gray-500" />
+                    <h2 className="text-base font-semibold text-gray-900">
+                      Questions
+                    </h2>
+                    {selectedQuestions.length > 0 && (
+                      <span className="inline-flex items-center justify-center h-5 min-w-5 px-1.5 rounded-full bg-blue-600 text-white text-xs font-semibold">
+                        {selectedQuestions.length}
+                      </span>
+                    )}
+                  </div>
+                  <p className="text-xs text-gray-500 mt-0.5">
+                    Drag to reorder questions
+                  </p>
+                </div>
+              </div>
+              <Button
+                onClick={() => setShowQuestionBank(true)}
+                size="sm"
+                className="gap-1.5 shrink-0"
+                disabled={!formData.linkedTopic}
+                title={
+                  !formData.linkedTopic ? "Select a topic first" : undefined
+                }
+              >
+                <Plus size={14} />
+                Add Questions
+              </Button>
             </div>
 
-            <Separator />
+            {selectedQuestions.length === 0 ? (
+              <div className="flex flex-col items-center justify-center py-12 text-center border-2 border-dashed border-gray-200 rounded-lg bg-gray-50/50">
+                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gray-100 mb-3">
+                  <ClipboardList size={22} className="text-gray-400" />
+                </div>
+                <p className="text-sm font-medium text-gray-600">
+                  No questions added yet
+                </p>
+                <p className="text-xs text-gray-400 mt-1">
+                  {!formData.linkedTopic
+                    ? "Select a topic above, then click Add Questions"
+                    : "Click Add Questions to import from your bank"}
+                </p>
+              </div>
+            ) : (
+              <>
+                <DndContext
+                  collisionDetection={closestCenter}
+                  onDragEnd={handleDragEnd}
+                >
+                  <SortableContext
+                    items={selectedQuestions.map((q) => q._id)}
+                    strategy={verticalListSortingStrategy}
+                  >
+                    <div className="space-y-2">
+                      {selectedQuestions.map((question, i) => (
+                        <DraggableQuestionCard
+                          key={question._id}
+                          question={question}
+                          index={i}
+                          onRemove={(q) => {
+                            setSelectedQuestions((prev) =>
+                              prev.filter((x) => x._id !== q._id),
+                            );
+                            setQuestions((prev) => [...prev, q]);
+                          }}
+                        />
+                      ))}
+                    </div>
+                  </SortableContext>
+                </DndContext>
+                <p className="mt-3 text-xs text-gray-400 text-right">
+                  {selectedQuestions.length} question
+                  {selectedQuestions.length !== 1 ? "s" : ""} selected
+                </p>
+              </>
+            )}
+          </Card>
 
-            <div>
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <Timer size={15} className="text-gray-400" />
+          {/* ── Step 3: Quiz Behavior ── */}
+          <Card className="p-6 mb-8 bg-white shadow-sm border border-gray-200">
+            <SectionHeader
+              step={3}
+              icon={<Settings2 size={15} className="text-gray-500" />}
+              title="Quiz Behavior"
+              subtitle="Configure how students experience this quiz"
+            />
+            <div className="divide-y divide-gray-100">
+              <div className="flex items-center justify-between py-4 first:pt-0">
+                <div className="flex items-center gap-3">
+                  <div className="flex h-8 w-8 items-center justify-center rounded-md bg-violet-50">
+                    <Shuffle size={15} className="text-violet-600" />
+                  </div>
                   <div>
-                    <Label className="text-sm font-medium text-gray-700">
-                      Time Limit
+                    <Label className="text-sm font-medium text-gray-800 cursor-default">
+                      Randomize question order
                     </Label>
-                    <p className="text-xs text-gray-400">
-                      Set a maximum duration for this quiz
+                    <p className="text-xs text-gray-400 mt-0.5">
+                      Each student sees questions in a different order
                     </p>
                   </div>
                 </div>
                 <Toggle
-                  enabled={formData.enableTimeLimit}
-                  onToggle={() => handleToggle("enableTimeLimit")}
+                  enabled={formData.shuffle}
+                  onToggle={() => handleToggle("shuffle")}
                 />
               </div>
-              {formData.enableTimeLimit && (
-                <div className="mt-3 flex items-center gap-2">
-                  <Input
-                    type="number"
-                    min="1"
-                    placeholder="e.g., 30"
-                    value={formData.timeLimit ?? ""}
-                    onChange={(e) =>
-                      handleInputChange(
-                        "timeLimit",
-                        e.target.value ? parseInt(e.target.value) : null,
-                      )
-                    }
-                    className="w-32"
-                  />
-                  <span className="text-sm text-gray-500">minutes</span>
+              <div className="flex items-center justify-between py-4 last:pb-0">
+                <div className="flex items-center gap-3">
+                  <div className="flex h-8 w-8 items-center justify-center rounded-md bg-green-50">
+                    <MessageSquareMore size={15} className="text-green-600" />
+                  </div>
+                  <div>
+                    <Label className="text-sm font-medium text-gray-800 cursor-default">
+                      Instant feedback
+                    </Label>
+                    <p className="text-xs text-gray-400 mt-0.5">
+                      Show the correct answer and explanation after each wrong
+                      guess
+                    </p>
+                  </div>
                 </div>
+                <Toggle
+                  enabled={formData.instantFeedback}
+                  onToggle={() => handleToggle("instantFeedback")}
+                />
+              </div>
+            </div>
+          </Card>
+
+          {/* Action Buttons */}
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-1.5 text-xs text-gray-400">
+              {isValid ? (
+                <>
+                  <CheckCircle2 size={14} className="text-green-500" />
+                  <span>Ready to create</span>
+                </>
+              ) : (
+                <>
+                  <AlertCircle size={14} className="text-amber-400" />
+                  <span>Fill in all required fields to continue</span>
+                </>
               )}
             </div>
-          </div>
-        </Card>
-
-        {/* ── Step 2: Questions ── */}
-        <Card className="p-6 mb-5 bg-white shadow-sm border border-gray-200">
-          <div className="flex items-start justify-between mb-6">
-            <div className="flex items-start gap-3">
-              <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-blue-600 text-white text-sm font-semibold">
-                2
-              </div>
-              <div>
-                <div className="flex items-center gap-2">
-                  <ClipboardList size={15} className="text-gray-500" />
-                  <h2 className="text-base font-semibold text-gray-900">
-                    Questions
-                  </h2>
-                  {selectedQuestions.length > 0 && (
-                    <span className="inline-flex items-center justify-center h-5 min-w-5 px-1.5 rounded-full bg-blue-600 text-white text-xs font-semibold">
-                      {selectedQuestions.length}
-                    </span>
-                  )}
-                </div>
-                <p className="text-xs text-gray-500 mt-0.5">
-                  Drag to reorder questions
-                </p>
-              </div>
-            </div>
-            <Button
-              onClick={() => setShowQuestionBank(true)}
-              size="sm"
-              className="gap-1.5 shrink-0"
-              disabled={!formData.linkedTopic}
-              title={!formData.linkedTopic ? "Select a topic first" : undefined}
-            >
-              <Plus size={14} />
-              Add Questions
-            </Button>
-          </div>
-
-          {selectedQuestions.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-12 text-center border-2 border-dashed border-gray-200 rounded-lg bg-gray-50/50">
-              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gray-100 mb-3">
-                <ClipboardList size={22} className="text-gray-400" />
-              </div>
-              <p className="text-sm font-medium text-gray-600">
-                No questions added yet
-              </p>
-              <p className="text-xs text-gray-400 mt-1">
-                {!formData.linkedTopic
-                  ? "Select a topic above, then click Add Questions"
-                  : "Click Add Questions to import from your bank"}
-              </p>
-            </div>
-          ) : (
-            <>
-              <DndContext
-                collisionDetection={closestCenter}
-                onDragEnd={handleDragEnd}
+            <div className="flex gap-3">
+              <Button variant="outline" type="button">
+                Cancel
+              </Button>
+              <Button
+                onClick={handleSubmit}
+                disabled={!isValid || isCreating}
+                className="gap-2"
               >
-                <SortableContext
-                  items={selectedQuestions.map((q) => q._id)}
-                  strategy={verticalListSortingStrategy}
-                >
-                  <div className="space-y-2">
-                    {selectedQuestions.map((question, i) => (
-                      <DraggableQuestionCard
-                        key={question._id}
-                        question={question}
-                        index={i}
-                        onRemove={(q) => {
-                          setSelectedQuestions((prev) =>
-                            prev.filter((x) => x._id !== q._id),
-                          );
-                          setQuestions((prev) => [...prev, q]);
-                        }}
-                      />
-                    ))}
-                  </div>
-                </SortableContext>
-              </DndContext>
-              <p className="mt-3 text-xs text-gray-400 text-right">
-                {selectedQuestions.length} question
-                {selectedQuestions.length !== 1 ? "s" : ""} selected
-              </p>
-            </>
-          )}
-        </Card>
-
-        {/* ── Step 3: Quiz Behavior ── */}
-        <Card className="p-6 mb-8 bg-white shadow-sm border border-gray-200">
-          <SectionHeader
-            step={3}
-            icon={<Settings2 size={15} className="text-gray-500" />}
-            title="Quiz Behavior"
-            subtitle="Configure how students experience this quiz"
-          />
-          <div className="divide-y divide-gray-100">
-            <div className="flex items-center justify-between py-4 first:pt-0">
-              <div className="flex items-center gap-3">
-                <div className="flex h-8 w-8 items-center justify-center rounded-md bg-violet-50">
-                  <Shuffle size={15} className="text-violet-600" />
-                </div>
-                <div>
-                  <Label className="text-sm font-medium text-gray-800 cursor-default">
-                    Randomize question order
-                  </Label>
-                  <p className="text-xs text-gray-400 mt-0.5">
-                    Each student sees questions in a different order
-                  </p>
-                </div>
-              </div>
-              <Toggle
-                enabled={formData.shuffle}
-                onToggle={() => handleToggle("shuffle")}
-              />
+                <Plus size={16} />
+                Create Quiz
+              </Button>
             </div>
-            <div className="flex items-center justify-between py-4 last:pb-0">
-              <div className="flex items-center gap-3">
-                <div className="flex h-8 w-8 items-center justify-center rounded-md bg-green-50">
-                  <MessageSquareMore size={15} className="text-green-600" />
-                </div>
-                <div>
-                  <Label className="text-sm font-medium text-gray-800 cursor-default">
-                    Instant feedback
-                  </Label>
-                  <p className="text-xs text-gray-400 mt-0.5">
-                    Show the correct answer and explanation after each wrong
-                    guess
-                  </p>
-                </div>
-              </div>
-              <Toggle
-                enabled={formData.instantFeedback}
-                onToggle={() => handleToggle("instantFeedback")}
-              />
-            </div>
-          </div>
-        </Card>
-
-        {/* Action Buttons */}
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-1.5 text-xs text-gray-400">
-            {isValid ? (
-              <>
-                <CheckCircle2 size={14} className="text-green-500" />
-                <span>Ready to create</span>
-              </>
-            ) : (
-              <>
-                <AlertCircle size={14} className="text-amber-400" />
-                <span>Fill in all required fields to continue</span>
-              </>
-            )}
-          </div>
-          <div className="flex gap-3">
-            <Button variant="outline" type="button">
-              Cancel
-            </Button>
-            <Button
-              onClick={handleSubmit}
-              disabled={!isValid}
-              className="gap-2"
-            >
-              <Plus size={16} />
-              Create Quiz
-            </Button>
           </div>
         </div>
       </div>
@@ -779,7 +793,23 @@ const QuizCreator = () => {
           )}
         </DialogContent>
       </Dialog>
-    </div>
+
+      <Dialog open={isSuccessOpen} onOpenChange={setIsSuccessOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Quiz Created</DialogTitle>
+            <DialogDescription>
+              Your quiz has been created successfully.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button type="button" onClick={() => setIsSuccessOpen(false)}>
+              Close
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 };
 

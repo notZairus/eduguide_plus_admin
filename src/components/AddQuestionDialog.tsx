@@ -5,6 +5,7 @@ import {
   DialogTitle,
   DialogDescription,
   DialogHeader,
+  DialogFooter,
 } from "./ui/dialog";
 import {
   Select,
@@ -55,6 +56,10 @@ const AddQuestionDialog = ({
   } | null>(null);
   const fileInputRef = useRef(null);
   const [isCreating, setIsCreating] = useState(false);
+  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+  const [isSuccessDialogOpen, setIsSuccessDialogOpen] = useState(false);
+  const [addMore, setAddMore] = useState(false);
+  const [reopenAfterSuccess, setReopenAfterSuccess] = useState(false);
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
@@ -79,6 +84,8 @@ const AddQuestionDialog = ({
     try {
       const res = await api.post("/questions", formData);
 
+      console.log(res);
+
       if (setQuestions) setQuestions((prev) => [...prev, res.data.question]);
 
       setMedia(null);
@@ -88,6 +95,9 @@ const AddQuestionDialog = ({
         answer: "",
         explanation: "",
       });
+      setReopenAfterSuccess(addMore);
+      setIsAddDialogOpen(false);
+      setIsSuccessDialogOpen(true);
       setIsCreating(false);
     } catch (e) {
       console.log(e);
@@ -99,7 +109,7 @@ const AddQuestionDialog = ({
     <>
       <Loader show={isCreating} text="Creating..." />
 
-      <Dialog>
+      <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
         <DialogTrigger asChild>{children}</DialogTrigger>
         <DialogContent className="rounded min-w-2xl flex flex-col">
           <DialogHeader>
@@ -257,6 +267,7 @@ const AddQuestionDialog = ({
                       <div className="rounded overflow-hidden relative p-2 bg-gray-50 border">
                         <Button
                           className="absolute top-2 right-2"
+                          type="button"
                           onClick={() => setMedia(null)}
                         >
                           x
@@ -277,6 +288,7 @@ const AddQuestionDialog = ({
                         />
                         <Button
                           className="absolute top-2 right-2"
+                          type="button"
                           onClick={() => setMedia(null)}
                         >
                           x
@@ -382,12 +394,56 @@ const AddQuestionDialog = ({
                 </Card>
               </ScrollArea>
             </div>
-            <div className="flex justify-end">
+            <div className="flex items-center justify-between gap-4">
+              <label className="inline-flex items-center gap-2 text-sm text-muted-foreground cursor-pointer">
+                <Input
+                  type="checkbox"
+                  checked={addMore}
+                  onChange={(e) => setAddMore(e.target.checked)}
+                  className="h-4 w-4"
+                />
+                Add more
+              </label>
               <Button disabled={!data.answer || !data.question}>
                 Create Question
               </Button>
             </div>
           </form>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog
+        open={isSuccessDialogOpen}
+        onOpenChange={(open) => {
+          setIsSuccessDialogOpen(open);
+
+          if (!open && reopenAfterSuccess) {
+            setIsAddDialogOpen(true);
+            setReopenAfterSuccess(false);
+          }
+        }}
+      >
+        <DialogContent className="rounded max-w-md">
+          <DialogHeader>
+            <DialogTitle>Question Created</DialogTitle>
+            <DialogDescription>
+              Your question has been added successfully.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button
+              type="button"
+              onClick={() => {
+                setIsSuccessDialogOpen(false);
+                if (reopenAfterSuccess) {
+                  setIsAddDialogOpen(true);
+                  setReopenAfterSuccess(false);
+                }
+              }}
+            >
+              Close
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
     </>

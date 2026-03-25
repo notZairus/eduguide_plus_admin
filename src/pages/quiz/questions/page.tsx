@@ -7,17 +7,34 @@ import { columns } from "./columns";
 import Loader from "../../../components/Loader";
 import { useHandbookContext } from "../../../contexts/HandbookContext";
 import { Plus, ClipboardList } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 const QuestionBank = () => {
   const { topics } = useHandbookContext();
   const [questions, setQuestions] = useState<Question[]>([]);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [deleteQuestionId, setDeleteQuestionId] = useState<string | null>(null);
+
+  const pendingDeleteQuestion = questions.find(
+    (q) => q._id === deleteQuestionId,
+  );
 
   async function handleDelete(question_id: string) {
-    setIsDeleting(true);
-    await api.delete(`/questions/${question_id}`);
-    setQuestions((prev) => prev.filter((q) => q._id !== question_id));
-    setIsDeleting(false);
+    try {
+      setIsDeleting(true);
+      await api.delete(`/questions/${question_id}`);
+      setQuestions((prev) => prev.filter((q) => q._id !== question_id));
+      setDeleteQuestionId(null);
+    } finally {
+      setIsDeleting(false);
+    }
   }
 
   useEffect(() => {
@@ -64,11 +81,55 @@ const QuestionBank = () => {
           <div className="bg-white border border-gray-200 rounded-md shadow-sm overflow-hidden">
             <DataTable
               data={questions}
-              columns={columns(handleDelete, topics, setQuestions)}
+              columns={columns(setDeleteQuestionId, topics, setQuestions)}
             />
           </div>
         </div>
       </div>
+
+      <Dialog
+        open={!!deleteQuestionId}
+        onOpenChange={(open) => {
+          if (!open) setDeleteQuestionId(null);
+        }}
+      >
+        <DialogContent className="rounded max-w-md">
+          <DialogHeader>
+            <DialogTitle>Delete Question?</DialogTitle>
+            <DialogDescription>
+              This action cannot be undone. The selected question will be
+              permanently removed.
+            </DialogDescription>
+          </DialogHeader>
+
+          {pendingDeleteQuestion?.question && (
+            <p className="text-sm text-muted-foreground border rounded p-3 line-clamp-3">
+              {pendingDeleteQuestion.question}
+            </p>
+          )}
+
+          <DialogFooter>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setDeleteQuestionId(null)}
+            >
+              Cancel
+            </Button>
+            <Button
+              type="button"
+              variant="destructive"
+              disabled={isDeleting || !deleteQuestionId}
+              onClick={() => {
+                if (!deleteQuestionId) return;
+                handleDelete(deleteQuestionId);
+              }}
+            >
+              Delete
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </>
   );
 };

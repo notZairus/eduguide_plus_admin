@@ -44,6 +44,7 @@
     "clsx": "^2.1.1",
     "lodash.throttle": "^4.1.1",
     "lucide-react": "^0.562.0",
+    "openai": "^6.32.0",
     "radix-ui": "^1.4.3",
     "react": "^19.2.4",
     "react-data-grid": "^7.0.0-beta.59",

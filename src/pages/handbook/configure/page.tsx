@@ -23,6 +23,14 @@ import {
 import Loader from "../../../components/Loader";
 import { Separator } from "../../../components/ui/separator";
 import { useHandbookContext } from "../../../contexts/HandbookContext";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "../../../components/ui/dialog";
 
 const HandbookConfigure = () => {
   const { handbook, setHandbook } = useHandbookContext();
@@ -32,15 +40,13 @@ const HandbookConfigure = () => {
     color: handbook?.color,
   });
   const [isUpdating, setIsUpdating] = useState(false);
-  const [thumbnail, setThumbnail] = useState<File | null | string>(
-    handbook?.thumbnail?.url || null,
-  );
-  const thumbnailInputRef = useRef<HTMLInputElement>(null);
   const [logo, setLogo] = useState<File | null | string>(
     handbook?.logo?.url || null,
   );
   const logoInputRef = useRef<HTMLInputElement>(null);
   const [copied, setCopied] = useState(false);
+  const [isConfirmOpen, setIsConfirmOpen] = useState(false);
+  const [isSuccessOpen, setIsSuccessOpen] = useState(false);
 
   const handleCopy = () => {
     navigator.clipboard.writeText(handbook!.code);
@@ -48,17 +54,12 @@ const HandbookConfigure = () => {
     setTimeout(() => setCopied(false), 1500);
   };
 
-  const handleSubmit = async (e: FormEvent) => {
-    e.preventDefault();
+  const saveHandbook = async () => {
     const formData = new FormData();
 
     formData.append("title", data.title as string);
     formData.append("description", data.description as string);
     formData.append("color", data.color as string);
-
-    if (thumbnail && typeof thumbnail !== "string") {
-      formData.append("thumbnail", thumbnail);
-    }
 
     if (logo && typeof logo !== "string") {
       formData.append("logo", logo);
@@ -69,11 +70,18 @@ const HandbookConfigure = () => {
       const res = await api.put("/handbooks", formData);
       const updatedHandbook = res.data.handbook;
       setHandbook(updatedHandbook);
+      setIsConfirmOpen(false);
+      setIsSuccessOpen(true);
     } catch (err) {
       console.error("Error updating handbook:", err);
     } finally {
       setIsUpdating(false);
     }
+  };
+
+  const handleSubmit = (e: FormEvent) => {
+    e.preventDefault();
+    setIsConfirmOpen(true);
   };
 
   if (!handbook) {
@@ -184,57 +192,6 @@ const HandbookConfigure = () => {
             </CardHeader>
             <CardContent>
               <div className="flex gap-8 items-start flex-wrap">
-                {/* Thumbnail */}
-                <div className="space-y-2">
-                  <Label>Thumbnail</Label>
-                  <Input
-                    accept="image/*"
-                    type="file"
-                    hidden
-                    ref={thumbnailInputRef}
-                    onChange={(e) => {
-                      const f = e.target.files;
-                      if (f) setThumbnail(f[0]);
-                    }}
-                  />
-                  <div
-                    className="aspect-10/15 w-48 rounded-lg border-2 border-dashed overflow-hidden relative cursor-pointer hover:border-primary hover:bg-accent/30 transition-colors"
-                    onClick={() =>
-                      !thumbnail && thumbnailInputRef.current?.click()
-                    }
-                  >
-                    {!thumbnail ? (
-                      <div className="flex h-full flex-col items-center justify-center gap-2 text-muted-foreground text-sm">
-                        <Upload className="w-6 h-6" />
-                        <span>Upload Thumbnail</span>
-                        <span className="text-xs">2:3 ratio</span>
-                      </div>
-                    ) : (
-                      <>
-                        <img
-                          src={
-                            typeof thumbnail === "string"
-                              ? thumbnail
-                              : URL.createObjectURL(thumbnail)
-                          }
-                          alt="Thumbnail"
-                          className="h-full w-full object-cover"
-                        />
-                        <button
-                          type="button"
-                          className="absolute top-2 right-2 p-1 rounded-md bg-background/80 hover:bg-background border transition-colors"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setThumbnail(null);
-                          }}
-                        >
-                          <X className="w-3.5 h-3.5" />
-                        </button>
-                      </>
-                    )}
-                  </div>
-                </div>
-
                 {/* Logo */}
                 <div className="space-y-2">
                   <Label>Logo</Label>
@@ -329,6 +286,45 @@ const HandbookConfigure = () => {
           </div>
         </form>
       </div>
+
+      <Dialog open={isSuccessOpen} onOpenChange={setIsSuccessOpen}>
+        <DialogContent className="rounded max-w-md">
+          <DialogHeader>
+            <DialogTitle>Changes Saved</DialogTitle>
+            <DialogDescription>
+              Handbook configuration was updated successfully.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button type="button" onClick={() => setIsSuccessOpen(false)}>
+              Close
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={isConfirmOpen} onOpenChange={setIsConfirmOpen}>
+        <DialogContent className="rounded max-w-md">
+          <DialogHeader>
+            <DialogTitle>Save Changes?</DialogTitle>
+            <DialogDescription>
+              This will update your handbook configuration and branding.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setIsConfirmOpen(false)}
+            >
+              Cancel
+            </Button>
+            <Button type="button" disabled={isUpdating} onClick={saveHandbook}>
+              Confirm Save
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </>
   );
 };

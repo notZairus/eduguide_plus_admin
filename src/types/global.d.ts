@@ -9,9 +9,6 @@ interface Handbook {
   logo?: {
     url: string;
   };
-  thumbnail?: {
-    url: string;
-  };
   createdAt: string;
   updatedAt: string;
   __v: number;
@@ -37,6 +34,7 @@ interface Section {
   title?: string;
   order: number;
   content: unknown;
+  summaries?: string[];
   medias: StoredMedia[];
   updatedAt?: string;
   createdAt?: string;

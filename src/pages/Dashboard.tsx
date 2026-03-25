@@ -7,6 +7,7 @@ import { Button } from "../components/ui/button";
 import AddSectionDialog from "../components/AddSectionDialog";
 import AddQuestionDialog from "../components/AddQuestionDialog";
 import { BookOpen, Layers, HelpCircle } from "lucide-react";
+import { summarize } from "../ai/ai";
 
 const Dashboard = () => {
   const { auth } = useAuthContext();
@@ -22,7 +23,7 @@ const Dashboard = () => {
     0,
   );
 
-  const getInitials = () => {
+  const getName = () => {
     if (!auth) return "";
     const mi =
       auth.middleName.split(" ").length === 1
@@ -58,6 +59,8 @@ const Dashboard = () => {
     },
   ];
 
+  // summarize();
+
   return (
     <section className="p-6 w-full space-y-8">
       {/* Header */}
@@ -66,9 +69,7 @@ const Dashboard = () => {
           <p className="text-sm text-muted-foreground font-medium uppercase tracking-widest mb-1">
             Welcome back
           </p>
-          <h2 className="text-4xl font-semibold tracking-tight">
-            {getInitials()}
-          </h2>
+          <h2 className="text-4xl font-semibold tracking-tight">{getName()}</h2>
         </div>
         <p className="text-sm text-muted-foreground">
           {new Date().toLocaleDateString("en-US", {

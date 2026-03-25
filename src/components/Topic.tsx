@@ -44,6 +44,10 @@ const Topic = () => {
   );
   const [useQuizLoading, setUseQuizLoading] = useState(false);
   const [deleteQuizLoading, setDeleteQuizLoading] = useState(false);
+  const [isUseQuizSuccessOpen, setIsUseQuizSuccessOpen] = useState(false);
+  const [lastUsedQuizTitle, setLastUsedQuizTitle] = useState("");
+  const [isDeleteQuizSuccessOpen, setIsDeleteQuizSuccessOpen] = useState(false);
+  const [lastDeletedQuizTitle, setLastDeletedQuizTitle] = useState("");
 
   useEffect(() => {
     async function fetchAvailableQuizzes() {
@@ -115,23 +119,37 @@ const Topic = () => {
   }
 
   async function handleUseQuiz() {
-    setUseQuizLoading(true);
-    await api.patch(`/topics/${activeTopic?._id}`, {
-      active_quiz: selectedQuiz?._id,
-    });
-    setUseQuizLoading(false);
+    if (!selectedQuiz) return;
+
+    try {
+      setUseQuizLoading(true);
+      await api.patch(`/topics/${activeTopic?._id}`, {
+        active_quiz: selectedQuiz._id,
+      });
+      setLastUsedQuizTitle(selectedQuiz.title);
+      setIsUseQuizSuccessOpen(true);
+    } finally {
+      setUseQuizLoading(false);
+    }
   }
 
   async function handleDeleteQuiz() {
-    setDeleteQuizLoading(true);
-    await api.delete(`/quizzes/${selectedQuiz?._id}`);
+    if (!selectedQuiz) return;
 
-    const filteredAvailableQuizzes: Quiz[] =
-      availableQuizzes?.filter((q) => q._id !== selectedQuiz?._id) || [];
+    try {
+      setDeleteQuizLoading(true);
+      await api.delete(`/quizzes/${selectedQuiz._id}`);
 
-    setAvailableQuizzes(filteredAvailableQuizzes);
-    setSelectedQuiz(null);
-    setDeleteQuizLoading(false);
+      const filteredAvailableQuizzes: Quiz[] =
+        availableQuizzes?.filter((q) => q._id !== selectedQuiz._id) || [];
+
+      setAvailableQuizzes(filteredAvailableQuizzes);
+      setLastDeletedQuizTitle(selectedQuiz.title);
+      setIsDeleteQuizSuccessOpen(true);
+      setSelectedQuiz(null);
+    } finally {
+      setDeleteQuizLoading(false);
+    }
   }
 
   if (!availableQuizzes) return <p>Loading...</p>;
@@ -189,7 +207,7 @@ const Topic = () => {
             </div>
 
             <div className="flex items-center gap-3">
-              <AddSectionDialog>
+              <AddSectionDialog forDashboard={false}>
                 <Button variant="default" size="sm">
                   + Add Section
                 </Button>
@@ -300,6 +318,50 @@ const Topic = () => {
           )}
         </main>
       </section>
+
+      <Dialog
+        open={isUseQuizSuccessOpen}
+        onOpenChange={setIsUseQuizSuccessOpen}
+      >
+        <DialogContent className="sm:max-w-sm rounded">
+          <DialogHeader>
+            <DialogTitle>Quiz Linked</DialogTitle>
+            <DialogDescription>
+              You are now using "{lastUsedQuizTitle}" for this topic.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button
+              type="button"
+              onClick={() => setIsUseQuizSuccessOpen(false)}
+            >
+              Close
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog
+        open={isDeleteQuizSuccessOpen}
+        onOpenChange={setIsDeleteQuizSuccessOpen}
+      >
+        <DialogContent className="sm:max-w-sm rounded">
+          <DialogHeader>
+            <DialogTitle>Quiz Deleted</DialogTitle>
+            <DialogDescription>
+              "{lastDeletedQuizTitle}" has been deleted successfully.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button
+              type="button"
+              onClick={() => setIsDeleteQuizSuccessOpen(false)}
+            >
+              Close
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </>
   );
 };

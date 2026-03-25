@@ -8,9 +8,18 @@ import { Input } from "../../../../components/ui/input";
 import { Card } from "../../../../components/ui/card";
 import Loader from "../../../../components/Loader";
 import { SquarePlay } from "lucide-react";
-import { wait } from "../../../../lib/utils";
+import { jsonToText, wait } from "../../../../lib/utils";
 import EditSectionNameDialog from "../../../../components/EditSectionNameDialog";
 import { useHandbookContext } from "../../../../contexts/HandbookContext";
+import { summarize } from "../../../../ai/ai";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "../../../../components/ui/dialog";
 
 type Media = {
   name: string;
@@ -27,26 +36,52 @@ const SectionEdit = () => {
   const fileInputRef = useRef(null);
 
   const [isSaving, setIsSaving] = useState(false);
+  const [summaries, setSummaries] = useState<string[]>([]);
+  const [isSummaryDialogOpen, setIsSummaryDialogOpen] = useState(false);
+  const [summaryStatus, setSummaryStatus] = useState("");
 
   async function handleSaveContent() {
     const formData = new FormData();
 
-    formData.append("content", JSON.stringify(content));
-    formData.append("medias", JSON.stringify(storedMedias));
-    medias.forEach((m) => {
-      formData.append("files", (m as Media).file);
-    });
-
     setIsSaving(true);
-    const res = await api.patch(`/sections/${section?._id}`, formData);
+    try {
+      const text = content ? jsonToText(content).trim() : "";
+      let generatedSummaries: string[] = [];
+      let status = "";
 
-    await wait(1);
-    setIsSaving(false);
+      if (text.length > 1000) {
+        try {
+          generatedSummaries = await summarize(text);
+        } catch {
+          status =
+            "Content was saved, but summary generation failed. Please try again.";
+        }
+      } else {
+        status =
+          "Content was saved, but there is not enough text to summarize yet.";
+      }
 
-    setMedias([]);
-    setSection(res.data.section);
-    setStoredMedias(res.data.section.medias);
-    setContent(res.data.section.content);
+      formData.append("content", JSON.stringify(content));
+      formData.append("medias", JSON.stringify(storedMedias));
+      medias.forEach((m) => {
+        formData.append("files", (m as Media).file);
+      });
+      formData.append("summaries", JSON.stringify(generatedSummaries));
+
+      await wait(1);
+      setSummaries(generatedSummaries);
+      setSummaryStatus(status);
+      setIsSummaryDialogOpen(true);
+
+      const res = await api.patch(`/sections/${section?._id}`, formData);
+
+      setMedias([]);
+      setSection(res.data.section);
+      setStoredMedias(res.data.section.medias);
+      setContent(res.data.section.content);
+    } finally {
+      setIsSaving(false);
+    }
   }
 
   useEffect(() => {
@@ -71,6 +106,33 @@ const SectionEdit = () => {
   return (
     <>
       <Loader show={isSaving} text="Saving..." />
+      <Dialog open={isSummaryDialogOpen} onOpenChange={setIsSummaryDialogOpen}>
+        <DialogContent className="sm:max-w-xl rounded">
+          <DialogHeader>
+            <DialogTitle>Generated Summaries</DialogTitle>
+            <DialogDescription>
+              {summaries.length > 0
+                ? "Here are the key points generated from the latest saved content."
+                : summaryStatus ||
+                  "Content was saved. Add more detail to the section to generate summaries."}
+            </DialogDescription>
+          </DialogHeader>
+
+          {summaries.length > 0 && (
+            <div className="max-h-80 overflow-y-auto">
+              <ul className="list-disc space-y-2 pl-5 text-sm">
+                {summaries.map((summary, index) => (
+                  <li key={`${index}-${summary.slice(0, 24)}`}>{summary}</li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          <DialogFooter>
+            <Button onClick={() => setIsSummaryDialogOpen(false)}>Close</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
       <div className="bg-gray-50">
         <header className="bg-white shadow w-full min-h-20 flex items-center">
           <div className="flex justify-between w-3xl mx-auto py-4">
