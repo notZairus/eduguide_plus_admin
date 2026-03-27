@@ -13,7 +13,7 @@ export default function LoginPage() {
     password: string;
   }>({
     email: "zairusvillasisbermillo@gmail.com",
-    password: "QZr8408o",
+    password: "QZr8408o@",
   });
   const [error, setError] = useState("");
   const [showPassword, setShowPassword] = useState(false);

@@ -25,10 +25,11 @@ const Dashboard = () => {
 
   const getName = () => {
     if (!auth) return "";
-    const mi =
-      auth.middleName.split(" ").length === 1
+    const mi = auth.middleName
+      ? auth.middleName.split(" ").length === 1
         ? `${auth.middleName[0]}.`
-        : `${auth.middleName.split(" ")[0][0]}${auth.middleName.split(" ")[1][0]}.`;
+        : `${auth.middleName.split(" ")[0][0]}${auth.middleName.split(" ")[1][0]}.`
+      : "";
     return `${auth.firstName} ${mi} ${auth.lastName}`;
   };
 

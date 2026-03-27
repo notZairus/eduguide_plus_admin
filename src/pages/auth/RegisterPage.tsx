@@ -29,9 +29,37 @@ export default function RegisterPage() {
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
+  const getPasswordValidationError = (password: string) => {
+    if (password.length < 8) {
+      return "Password must be at least 8 characters long";
+    }
+
+    if (!/[A-Z]/.test(password)) {
+      return "Password must include at least one uppercase letter";
+    }
+
+    if (!/[a-z]/.test(password)) {
+      return "Password must include at least one lowercase letter";
+    }
+
+    if (!/[^A-Za-z0-9]/.test(password)) {
+      return "Password must include at least one symbol";
+    }
+
+    return "";
+  };
+
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setError("");
+
+    const passwordValidationError = getPasswordValidationError(
+      formData.password,
+    );
+    if (passwordValidationError) {
+      setError(passwordValidationError);
+      return;
+    }
 
     if (formData.password !== formData.passwordConfirmation) {
       setError("Passwords do not match");
@@ -41,7 +69,9 @@ export default function RegisterPage() {
     setIsLoading(true);
 
     try {
-      const res = await api.post("/auth/register", {
+      const registeredEmail = formData.email;
+
+      const res = await api.post("/auth/validate-registration", {
         email: formData.email,
         password: formData.password,
         firstName: formData.firstName,
@@ -49,23 +79,28 @@ export default function RegisterPage() {
         lastName: formData.lastName,
       });
 
-      if (res.status === 200) {
-        setSuccess("Registration successful! You can now log in.");
-        await new Promise((resolve) => setTimeout(resolve, 1500));
-        navigate("/login");
+      if (res.data.status === 409) {
+        setError("An account with this email already exists");
+        return;
       }
 
-      setFormData({
-        email: "",
-        password: "",
-        passwordConfirmation: "",
-        firstName: "",
-        middleName: "",
-        lastName: "",
-      });
-    } catch (err) {
-      const e = err as { response?: { data?: string } };
-      setError(e?.response?.data || "Registration failed");
+      if (res.data.status === 200) {
+        setSuccess("A verification code has been sent to your email.");
+        await new Promise((resolve) => setTimeout(resolve, 1500));
+        navigate("/verify-registration", {
+          state: { email: registeredEmail },
+        });
+        setFormData({
+          email: "",
+          password: "",
+          passwordConfirmation: "",
+          firstName: "",
+          middleName: "",
+          lastName: "",
+        });
+      }
+    } catch {
+      setError("Registration failed");
     } finally {
       setIsLoading(false);
     }
@@ -166,7 +201,7 @@ export default function RegisterPage() {
                       setFormData({ ...formData, password: e.target.value })
                     }
                     type={showPassword ? "text" : "password"}
-                    placeholder="Min. 8 characters"
+                    placeholder="8+ chars, Aa, symbol"
                     className="w-full pr-10"
                   />
                   <button
@@ -260,7 +295,7 @@ export default function RegisterPage() {
               disabled={isLoading}
               className="mt-6 w-full rounded-lg border bg-[#142e67] text-white py-2 font-semibold hover:bg-[#0f1f4a] transition-colors cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
             >
-              {isLoading ? "Creating account…" : "Create account"}
+              {isLoading ? "Sending Verification Code..." : "Create account"}
             </button>
           </form>
 

@@ -9,6 +9,7 @@ import HandbookConfigure from "./pages/handbook/configure/page";
 
 import SectionEdit from "./pages/handbook/content/sections/edit";
 import RegisterPage from "./pages/auth/RegisterPage";
+import VerifyRegistrationPage from "./pages/auth/VerifyRegistrationPage";
 
 import QuestionBank from "./pages/quiz/questions/page";
 import QuizCreator from "./pages/quiz/QuizCreator";
@@ -26,6 +27,10 @@ const App = () => {
         <Route element={<UnauthenticatedRoute />}>
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
+          <Route
+            path="/verify-registration"
+            element={<VerifyRegistrationPage />}
+          />
         </Route>
 
         <Route element={<AuthenticatedRoute />}>
