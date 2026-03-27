@@ -31,10 +31,12 @@ const EditQuestionDialog = ({
   question,
   topics,
   setQuestions,
+  localOnly = false,
 }: {
   question: Question;
   topics: Topic[];
   setQuestions: React.Dispatch<React.SetStateAction<Question[]>>;
+  localOnly?: boolean;
 }) => {
   const [data, setData] = useState({
     topic: question.topic_id,
@@ -67,6 +69,32 @@ const EditQuestionDialog = ({
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
     setIsUpdating(true);
+
+    if (localOnly) {
+      const updatedQuestion: Question = {
+        ...question,
+        topic_id: data.topic,
+        section_id: data.section,
+        type: data.questionType,
+        question: data.question,
+        answer: data.answer,
+        explanation: data.explanation,
+        choices:
+          data.questionType === "multiple-choice"
+            ? (choices as string[])
+            : ([] as string[]),
+      };
+
+      setQuestions((prev) => {
+        const copy = prev.slice();
+        const index = copy.findIndex((q) => q._id === question._id);
+        if (index === -1) return prev;
+        copy[index] = updatedQuestion;
+        return copy;
+      });
+      setIsUpdating(false);
+      return;
+    }
 
     const formData = new FormData();
     formData.append("topicId", data.topic);
@@ -126,7 +154,7 @@ const EditQuestionDialog = ({
                         <Label htmlFor="topic">Topic *</Label>
                         <Select
                           required
-                          value={question.topic_id}
+                          value={data.topic}
                           onValueChange={(value) => {
                             setData({ ...data, topic: value, section: "" });
                           }}
@@ -166,7 +194,10 @@ const EditQuestionDialog = ({
                               {topics
                                 .find((t) => t._id === data.topic)
                                 ?.sections.map((section) => (
-                                  <SelectItem value={section._id}>
+                                  <SelectItem
+                                    key={section._id}
+                                    value={section._id}
+                                  >
                                     {section.title}
                                   </SelectItem>
                                 ))}
@@ -184,7 +215,10 @@ const EditQuestionDialog = ({
                           onValueChange={(value) => {
                             setData({
                               ...data,
-                              questionType: value,
+                              questionType: value as
+                                | "multiple-choice"
+                                | "identification"
+                                | "true-or-false",
                               answer: "",
                             });
                             setChoices(Array.from({ length: 4 }));

@@ -7,7 +7,6 @@ import { Button } from "../components/ui/button";
 import AddSectionDialog from "../components/AddSectionDialog";
 import AddQuestionDialog from "../components/AddQuestionDialog";
 import { BookOpen, Layers, HelpCircle } from "lucide-react";
-import { summarize } from "../ai/ai";
 
 const Dashboard = () => {
   const { auth } = useAuthContext();
