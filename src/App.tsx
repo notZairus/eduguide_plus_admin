@@ -1,6 +1,7 @@
 import MainLayout from "./layouts/MainLayout";
 import Dashboard from "./pages/Dashboard";
 import LoginPage from "./pages/auth/LoginPage";
+import ForgotPasswordPage from "./pages/auth/ForgotPasswordPage";
 import UnauthenticatedRoute from "./components/UnauthenticatedRoute";
 import { Routes, Route, Navigate } from "react-router";
 
@@ -26,6 +27,7 @@ const App = () => {
 
         <Route element={<UnauthenticatedRoute />}>
           <Route path="/login" element={<LoginPage />} />
+          <Route path="/forgot-password" element={<ForgotPasswordPage />} />
           <Route path="/register" element={<RegisterPage />} />
           <Route
             path="/verify-registration"

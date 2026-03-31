@@ -22,6 +22,9 @@ import { useAuthContext } from "../contexts/AuthContext";
 import { api } from "../lib/api";
 
 type AlertState = { type: "success" | "error"; message: string } | null;
+const PASSWORD_MIN_LENGTH = 8;
+const PASSWORD_MAX_LENGTH = 32;
+const PASSWORD_STRENGTH_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[^A-Za-z0-9]).+$/;
 
 const UserSettings = () => {
   const { auth, setAuth } = useAuthContext();
@@ -95,6 +98,20 @@ const UserSettings = () => {
     e.preventDefault();
     setPasswordAlert(null);
 
+    const trimmedNewPassword = passwordData.new_password.trim();
+    const trimmedConfirmPassword = passwordData.confirm_password.trim();
+
+    if (
+      trimmedNewPassword.length < PASSWORD_MIN_LENGTH ||
+      trimmedNewPassword.length > PASSWORD_MAX_LENGTH
+    ) {
+      setPasswordAlert({
+        type: "error",
+        message: `Password must be between ${PASSWORD_MIN_LENGTH} and ${PASSWORD_MAX_LENGTH} characters.`,
+      });
+      return;
+    }
+
     if (passwordData.new_password !== passwordData.confirm_password) {
       setPasswordAlert({
         type: "error",
@@ -103,12 +120,21 @@ const UserSettings = () => {
       return;
     }
 
+    if (!PASSWORD_STRENGTH_REGEX.test(trimmedNewPassword)) {
+      setPasswordAlert({
+        type: "error",
+        message:
+          "Password must include at least one lowercase letter, one uppercase letter, and one symbol.",
+      });
+      return;
+    }
+
     setPasswordLoading(true);
     try {
       await api.patch("/users/me/password", {
         current_password: passwordData.current_password,
-        new_password: passwordData.new_password,
-        confirm_password: passwordData.confirm_password,
+        new_password: trimmedNewPassword,
+        confirm_password: trimmedConfirmPassword,
       });
       setPasswordData({
         current_password: "",
@@ -172,6 +198,7 @@ const UserSettings = () => {
               <div className="space-y-1.5">
                 <Label htmlFor="first_name">First Name</Label>
                 <Input
+                  disabled
                   id="first_name"
                   name="first_name"
                   value={profileData.first_name}
@@ -191,6 +218,7 @@ const UserSettings = () => {
                   </span>
                 </Label>
                 <Input
+                  disabled
                   id="middle_name"
                   name="middle_name"
                   value={profileData.middle_name}
@@ -203,6 +231,7 @@ const UserSettings = () => {
               <div className="space-y-1.5">
                 <Label htmlFor="last_name">Last Name</Label>
                 <Input
+                  disabled
                   id="last_name"
                   name="last_name"
                   value={profileData.last_name}
@@ -230,12 +259,6 @@ const UserSettings = () => {
                 {profileAlert.message}
               </div>
             )}
-
-            <div className="flex justify-end pt-2">
-              <Button type="submit" disabled={profileLoading}>
-                {profileLoading ? "Saving…" : "Save Profile"}
-              </Button>
-            </div>
           </form>
         </CardContent>
       </Card>
@@ -248,7 +271,8 @@ const UserSettings = () => {
             Change Password
           </CardTitle>
           <CardDescription>
-            Choose a strong password between 8 and 32 characters.
+            Choose a strong password between 8 and 32 characters with lowercase,
+            uppercase, and symbol.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -296,8 +320,8 @@ const UserSettings = () => {
                     type={showNewPw ? "text" : "password"}
                     value={passwordData.new_password}
                     onChange={handlePasswordChange}
-                    minLength={8}
-                    maxLength={32}
+                    minLength={PASSWORD_MIN_LENGTH}
+                    maxLength={PASSWORD_MAX_LENGTH}
                     required
                     placeholder="Min. 8 characters"
                     className="pr-10"
@@ -327,8 +351,8 @@ const UserSettings = () => {
                     type={showConfirmPw ? "text" : "password"}
                     value={passwordData.confirm_password}
                     onChange={handlePasswordChange}
-                    minLength={8}
-                    maxLength={32}
+                    minLength={PASSWORD_MIN_LENGTH}
+                    maxLength={PASSWORD_MAX_LENGTH}
                     required
                     placeholder="Repeat new password"
                     className="pr-10"
