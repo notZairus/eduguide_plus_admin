@@ -2,20 +2,53 @@ import { useHandbookContext } from "../contexts/HandbookContext";
 import { ScrollArea, ScrollBar } from "../components/ui/scroll-area";
 import { useParams } from "react-router";
 import { jsonToHTML } from "../lib/utils";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import ReactPlayer from "react-player";
+import { api } from "../lib/api";
 
 const ContentPreview = () => {
   const { sections, handbook } = useHandbookContext();
   const { id } = useParams();
-  const section = sections.find((sec) => sec._id === id);
+  const sectionFromContext = sections.find((sec) => sec._id === id);
+  const [section, setSection] = useState<Section | null>(
+    sectionFromContext || null,
+  );
+  const [isLoadingSection, setIsLoadingSection] = useState(false);
   const [activeTab, setActiveTab] = useState("content");
+
+  useEffect(() => {
+    async function getSectionById() {
+      if (!id) return;
+
+      try {
+        setIsLoadingSection(true);
+        const res = await api.get(`/sections/${id}`);
+        setSection(res.data.section);
+      } catch (error) {
+        // Keep context section as fallback if fetching the full section fails.
+        setSection(sectionFromContext || null);
+        console.error("Error loading section preview:", error);
+      } finally {
+        setIsLoadingSection(false);
+      }
+    }
+
+    getSectionById();
+  }, [id, sectionFromContext]);
+
+  useEffect(() => {
+    if (!section && sectionFromContext) {
+      setSection(sectionFromContext);
+    }
+  }, [section, sectionFromContext]);
+
+  if (isLoadingSection && !section) {
+    return <p>Loading section...</p>;
+  }
 
   if (!section) {
     return "No Section";
   }
-
-  console.log(section);
 
   return (
     <ScrollArea className="bg-[#e5eaee] overflow-hidden">

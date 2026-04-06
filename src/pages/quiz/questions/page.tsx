@@ -39,16 +39,23 @@ const QuestionBank = () => {
   const [isGeneratedSaveSuccessOpen, setIsGeneratedSaveSuccessOpen] =
     useState(false);
   const [savedGeneratedCount, setSavedGeneratedCount] = useState(0);
+  const [isDeleteQuestionSuccessOpen, setIsDeleteQuestionSuccessOpen] =
+    useState(false);
+  const [lastDeletedQuestionText, setLastDeletedQuestionText] = useState("");
 
   const pendingDeleteQuestion = questions.find(
     (q) => q._id === deleteQuestionId,
   );
 
   async function handleDelete(question_id: string) {
+    const questionToDelete = questions.find((q) => q._id === question_id);
+
     try {
       setIsDeleting(true);
       await api.delete(`/questions/${question_id}`);
       setQuestions((prev) => prev.filter((q) => q._id !== question_id));
+      setLastDeletedQuestionText(questionToDelete?.question || "Question");
+      setIsDeleteQuestionSuccessOpen(true);
       setDeleteQuestionId(null);
     } finally {
       setIsDeleting(false);
@@ -482,6 +489,28 @@ const QuestionBank = () => {
             <Button
               type="button"
               onClick={() => setIsGeneratedSaveSuccessOpen(false)}
+            >
+              Close
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog
+        open={isDeleteQuestionSuccessOpen}
+        onOpenChange={setIsDeleteQuestionSuccessOpen}
+      >
+        <DialogContent className="rounded max-w-md">
+          <DialogHeader>
+            <DialogTitle>Question Deleted</DialogTitle>
+            <DialogDescription>
+              "{lastDeletedQuestionText}" has been deleted successfully.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button
+              type="button"
+              onClick={() => setIsDeleteQuestionSuccessOpen(false)}
             >
               Close
             </Button>

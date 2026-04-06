@@ -12,8 +12,8 @@ export default function LoginPage() {
     email: string;
     password: string;
   }>({
-    email: "zairusvillasisbermillo@gmail.com",
-    password: "QZr8408o@",
+    email: "",
+    password: "",
   });
   const [error, setError] = useState("");
   const [showPassword, setShowPassword] = useState(false);

@@ -77,6 +77,7 @@ Rules:
 Field rules:
 - question: minimum 8 characters
 - answer: must be correct and precise
+- for "identification" type, answer must be exactly one word
 - explanation: optional, but include when helpful
 - choices:
   - REQUIRED for "multiple-choice"

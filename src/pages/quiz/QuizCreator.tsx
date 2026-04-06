@@ -413,7 +413,7 @@ const QuizCreator = () => {
                   </DropdownMenu>
                 </div>
 
-                <div>
+                {/* <div>
                   <Label
                     htmlFor="passing-score"
                     className="text-sm font-medium text-gray-700 mb-1.5 block"
@@ -464,13 +464,13 @@ const QuizCreator = () => {
                       {formData.passingScore}%
                     </span>
                   </div>
-                </div>
+                </div> */}
               </div>
 
               <Separator />
 
               <div>
-                <div className="flex items-center justify-between">
+                {/* <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <Timer size={15} className="text-gray-400" />
                     <div>
@@ -486,7 +486,7 @@ const QuizCreator = () => {
                     enabled={formData.enableTimeLimit}
                     onToggle={() => handleToggle("enableTimeLimit")}
                   />
-                </div>
+                </div> */}
                 {formData.enableTimeLimit && (
                   <div className="mt-3 flex items-center gap-2">
                     <Input
@@ -597,7 +597,7 @@ const QuizCreator = () => {
           </Card>
 
           {/* ── Step 3: Quiz Behavior ── */}
-          <Card className="p-6 mb-8 bg-white shadow-sm border border-gray-200">
+          {/* <Card className="p-6 mb-8 bg-white shadow-sm border border-gray-200">
             <SectionHeader
               step={3}
               icon={<Settings2 size={15} className="text-gray-500" />}
@@ -645,7 +645,7 @@ const QuizCreator = () => {
                 />
               </div>
             </div>
-          </Card>
+          </Card> */}
 
           {/* Action Buttons */}
           <div className="flex items-center justify-between">

@@ -9,6 +9,7 @@ import {
   DialogDescription,
   DialogFooter,
   DialogHeader,
+  DialogTitle,
   DialogTrigger,
 } from "../../../components/ui/dialog";
 import { DndContext, type DragEndEvent } from "@dnd-kit/core";
@@ -33,6 +34,9 @@ const Handbook = () => {
 
   const [isDeleting, setIsDeleting] = useState(false);
   const [isCreating] = useState(false);
+  const [isDeleteTopicSuccessOpen, setIsDeleteTopicSuccessOpen] =
+    useState(false);
+  const [lastDeletedTopicTitle, setLastDeletedTopicTitle] = useState("");
 
   useEffect(() => {
     if (!activeTopic) return;
@@ -70,6 +74,8 @@ const Handbook = () => {
   }
 
   async function handleDelete(id: string) {
+    const topicToDelete = topics.find((topic) => topic._id === id);
+
     setIsDeleting(true);
 
     await api.delete(`/topics/${id}`);
@@ -82,12 +88,36 @@ const Handbook = () => {
       setActiveTopic(null);
     }
     setTopics(updatedTopics);
+    setLastDeletedTopicTitle(topicToDelete?.title || "Topic");
+    setIsDeleteTopicSuccessOpen(true);
   }
 
   return (
     <>
       <Loader show={isDeleting} text="Deleting..." />
       <Loader show={isCreating} text="Creating..." />
+
+      <Dialog
+        open={isDeleteTopicSuccessOpen}
+        onOpenChange={setIsDeleteTopicSuccessOpen}
+      >
+        <DialogContent className="sm:max-w-sm rounded">
+          <DialogHeader>
+            <DialogTitle>Topic Deleted</DialogTitle>
+            <DialogDescription>
+              "{lastDeletedTopicTitle}" has been deleted successfully.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button
+              type="button"
+              onClick={() => setIsDeleteTopicSuccessOpen(false)}
+            >
+              Close
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       <div className="w-full h-full flex items-start relative">
         <div className="w-56 h-full flex flex-col gap-4 fixed">

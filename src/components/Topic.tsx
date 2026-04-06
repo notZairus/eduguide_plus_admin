@@ -44,10 +44,14 @@ const Topic = () => {
   );
   const [useQuizLoading, setUseQuizLoading] = useState(false);
   const [deleteQuizLoading, setDeleteQuizLoading] = useState(false);
+  const [deleteSectionLoading, setDeleteSectionLoading] = useState(false);
   const [isUseQuizSuccessOpen, setIsUseQuizSuccessOpen] = useState(false);
   const [lastUsedQuizTitle, setLastUsedQuizTitle] = useState("");
   const [isDeleteQuizSuccessOpen, setIsDeleteQuizSuccessOpen] = useState(false);
   const [lastDeletedQuizTitle, setLastDeletedQuizTitle] = useState("");
+  const [isDeleteSectionSuccessOpen, setIsDeleteSectionSuccessOpen] =
+    useState(false);
+  const [lastDeletedSectionTitle, setLastDeletedSectionTitle] = useState("");
 
   useEffect(() => {
     async function fetchAvailableQuizzes() {
@@ -76,14 +80,26 @@ const Topic = () => {
   }
 
   async function handleDeleteSection(_id: string) {
-    await api.delete(`/sections/${_id}`);
-    const sectionFiltered = activeTopic?.sections.filter((s) => s._id !== _id);
-    const activeTopicCopy = {
-      ...activeTopic,
-      sections: sectionFiltered,
-    };
+    const sectionToDelete = activeTopic?.sections.find((s) => s._id === _id);
 
-    setActiveTopic(activeTopicCopy as Topic);
+    try {
+      setDeleteSectionLoading(true);
+      await api.delete(`/sections/${_id}`);
+
+      const sectionFiltered = activeTopic?.sections.filter(
+        (s) => s._id !== _id,
+      );
+      const activeTopicCopy = {
+        ...activeTopic,
+        sections: sectionFiltered,
+      };
+
+      setActiveTopic(activeTopicCopy as Topic);
+      setLastDeletedSectionTitle(sectionToDelete?.title || "Section");
+      setIsDeleteSectionSuccessOpen(true);
+    } finally {
+      setDeleteSectionLoading(false);
+    }
   }
 
   async function handleDragEnd(event: DragEndEvent) {
@@ -159,6 +175,7 @@ const Topic = () => {
     <>
       <Loader show={useQuizLoading} text="Updating..." />
       <Loader show={deleteQuizLoading} text="Deleting..." />
+      <Loader show={deleteSectionLoading} text="Deleting section..." />
 
       <section className="w-full h-full flex flex-col">
         <header>
@@ -356,6 +373,28 @@ const Topic = () => {
             <Button
               type="button"
               onClick={() => setIsDeleteQuizSuccessOpen(false)}
+            >
+              Close
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog
+        open={isDeleteSectionSuccessOpen}
+        onOpenChange={setIsDeleteSectionSuccessOpen}
+      >
+        <DialogContent className="sm:max-w-sm rounded">
+          <DialogHeader>
+            <DialogTitle>Section Deleted</DialogTitle>
+            <DialogDescription>
+              "{lastDeletedSectionTitle}" has been deleted successfully.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button
+              type="button"
+              onClick={() => setIsDeleteSectionSuccessOpen(false)}
             >
               Close
             </Button>
