@@ -119,7 +119,7 @@ const AddQuestionDialog = ({
             </DialogDescription>
           </DialogHeader>
 
-          {forDashboard && <p>hello</p>}
+          {forDashboard && <p> </p>}
 
           <form onSubmit={handleSubmit}>
             <div className="flex-1">
