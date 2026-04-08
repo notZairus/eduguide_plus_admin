@@ -334,7 +334,7 @@ const EditQuestionDialog = ({
 
                 {/* CONTENT */}
                 <Card className="mb-6 rounded p-4">
-                  <CardTitle>Choices</CardTitle>
+                  <CardTitle>Answer</CardTitle>
 
                   {/* MULTIPLE CHOICE */}
                   {data.questionType === "multiple-choice" && (

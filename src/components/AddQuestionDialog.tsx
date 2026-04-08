@@ -301,7 +301,7 @@ const AddQuestionDialog = ({
                 {/* MULTIPLE CHOICE */}
                 {data.questionType === "multiple-choice" && (
                   <Card className="mb-6 rounded p-4">
-                    <CardTitle>Choices</CardTitle>
+                    <CardTitle>Answer</CardTitle>
                     <CardContent className="px-6 space-y-4">
                       <RadioGroup
                         required
