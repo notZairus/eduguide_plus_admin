@@ -8,8 +8,6 @@ import {
   Folder,
   Wrench,
   LogOut,
-  Settings2,
-  Settings2Icon,
   UserRoundCog,
 } from "lucide-react";
 import { useState } from "react";
@@ -35,6 +33,14 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "../components/ui/dropdown-menu";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "../components/ui/dialog";
 import { api } from "../lib/api";
 import { useHandbookContext } from "../contexts/HandbookContext";
 import { useAuthContext } from "../contexts/AuthContext";
@@ -106,8 +112,11 @@ export function AppSidebar() {
   const [groups, setGroups] = useState(() =>
     collapsibleItems.map((g) => ({ ...g })),
   );
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
 
   async function handleSignOut() {
+    setIsLoggingOut(true);
     try {
       await api.get("/auth/logout");
       setHandbook(null);
@@ -115,6 +124,9 @@ export function AppSidebar() {
       navigate("/login");
     } catch (error) {
       console.error("Logout failed", error);
+    } finally {
+      setIsLoggingOut(false);
+      setShowLogoutModal(false);
     }
   }
 
@@ -280,7 +292,7 @@ export function AppSidebar() {
                     <span>User Settings</span>
                   </DropdownMenuItem>
                   <DropdownMenuItem
-                    onClick={handleSignOut}
+                    onClick={() => setShowLogoutModal(true)}
                     className="text-red-600 focus:text-red-600 focus:bg-red-50 cursor-pointer"
                   >
                     <LogOut size={14} className="mr-2" />
@@ -292,6 +304,35 @@ export function AppSidebar() {
           </SidebarMenu>
         </SidebarFooter>
       )}
+
+      <Dialog open={showLogoutModal} onOpenChange={setShowLogoutModal}>
+        <DialogContent className="sm:max-w-sm rounded">
+          <DialogHeader>
+            <DialogTitle>Confirm sign out</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to sign out of your account?
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <button
+              type="button"
+              onClick={() => setShowLogoutModal(false)}
+              disabled={isLoggingOut}
+              className="rounded-md border px-4 py-2 text-sm font-medium hover:bg-gray-50 disabled:opacity-60"
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              onClick={handleSignOut}
+              disabled={isLoggingOut}
+              className="rounded-md bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700 disabled:opacity-60"
+            >
+              {isLoggingOut ? "Signing out..." : "Sign out"}
+            </button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </Sidebar>
   );
 }
