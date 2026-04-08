@@ -16,6 +16,8 @@ const ContentPreview = () => {
   const [isLoadingSection, setIsLoadingSection] = useState(false);
   const [activeTab, setActiveTab] = useState("content");
 
+  console.log(section);
+
   useEffect(() => {
     async function getSectionById() {
       if (!id) return;
@@ -150,7 +152,19 @@ const ContentPreview = () => {
 
         {activeTab === "summary" && (
           <div className="bg-white text-xs leading-5 p-4 tracking-wide text-justify space-y-4">
-            {section?.summary || "No summary available."}
+            {section?.summaries?.length
+              ? section?.summaries.map((summary, index) => (
+                  <p
+                    key={index}
+                    className="border-l-2 pl-2"
+                    style={{
+                      borderColor: (handbook as Handbook).color,
+                    }}
+                  >
+                    {summary}
+                  </p>
+                ))
+              : "No summary available."}
           </div>
         )}
       </div>
