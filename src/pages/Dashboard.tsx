@@ -6,11 +6,13 @@ import AddTopicDialog from "../components/AddTopicDialog";
 import { Button } from "../components/ui/button";
 import AddSectionDialog from "../components/AddSectionDialog";
 import AddQuestionDialog from "../components/AddQuestionDialog";
-import { BookOpen, Layers, HelpCircle } from "lucide-react";
+import { BookOpen, Layers, HelpCircle, Check, Copy } from "lucide-react";
+import { useState } from "react";
 
 const Dashboard = () => {
   const { auth } = useAuthContext();
-  const { topics } = useHandbookContext();
+  const { handbook, topics } = useHandbookContext();
+  const [copied, setCopied] = useState(false);
 
   const totalTopics = topics.length;
   const totalSections = topics.reduce(
@@ -59,7 +61,11 @@ const Dashboard = () => {
     },
   ];
 
-  // summarize();
+  const handleCopy = () => {
+    navigator.clipboard.writeText(handbook!.code);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 1500);
+  };
 
   return (
     <section className="p-6 w-full space-y-8">
@@ -70,6 +76,21 @@ const Dashboard = () => {
             Welcome back
           </p>
           <h2 className="text-4xl font-semibold tracking-tight">{getName()}</h2>
+          <p className="text-sm text-muted-foreground mt-2 flex items-center gap-2">
+            <p>Handbook Code:</p>
+            <button
+              type="button"
+              onClick={handleCopy}
+              className="flex items-center gap-2 px-3 py-1.5 rounded-md border text-sm text-muted-foreground hover:bg-accent transition-colors"
+            >
+              {copied ? (
+                <Check className="w-3.5 h-3.5 text-emerald-500" />
+              ) : (
+                <Copy className="w-3.5 h-3.5" />
+              )}
+              <span className="font-mono">{handbook?.code}</span>
+            </button>
+          </p>
         </div>
         <p className="text-sm text-muted-foreground">
           {new Date().toLocaleDateString("en-US", {

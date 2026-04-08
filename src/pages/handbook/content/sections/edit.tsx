@@ -11,7 +11,6 @@ import { SquarePlay } from "lucide-react";
 import { jsonToText, wait } from "../../../../lib/utils";
 import EditSectionNameDialog from "../../../../components/EditSectionNameDialog";
 import { useHandbookContext } from "../../../../contexts/HandbookContext";
-import { summarize } from "../../../../ai/ai";
 import {
   Dialog,
   DialogContent,
@@ -20,6 +19,9 @@ import {
   DialogHeader,
   DialogTitle,
 } from "../../../../components/ui/dialog";
+
+// import { summarize } from "../../../../ai/ai";
+import { summarize } from "../../../../ai/ai-gemini";
 
 type Media = {
   name: string;

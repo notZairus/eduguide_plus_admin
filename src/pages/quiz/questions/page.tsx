@@ -7,7 +7,6 @@ import { columns } from "./columns";
 import Loader from "../../../components/Loader";
 import { useHandbookContext } from "../../../contexts/HandbookContext";
 import { jsonToHTML, jsonToText } from "../../../lib/utils";
-import { generateQuestion } from "../../../ai/ai";
 import EditGeneratedQuestionDialog from "../../../components/EditGeneratedQuestionDialog";
 import { Plus, ClipboardList } from "lucide-react";
 import {
@@ -18,6 +17,9 @@ import {
   DialogHeader,
   DialogTitle,
 } from "../../../components/ui/dialog";
+
+// import { generateQuestion } from "../../../ai/ai";
+import { generateQuestion } from "../../../ai/ai-gemini";
 
 type GeneratedQuestion = Question;
 

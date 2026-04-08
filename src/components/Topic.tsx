@@ -54,6 +54,10 @@ const Topic = () => {
   const [lastDeletedSectionTitle, setLastDeletedSectionTitle] = useState("");
 
   useEffect(() => {
+    setSelectedQuiz(activeTopic?.active_quiz ?? null);
+  }, [activeTopic]);
+
+  useEffect(() => {
     async function fetchAvailableQuizzes() {
       try {
         const res = await api.get(`/quizzes/topics/${activeTopic?._id}`);
@@ -142,6 +146,12 @@ const Topic = () => {
       await api.patch(`/topics/${activeTopic?._id}`, {
         active_quiz: selectedQuiz._id,
       });
+
+      setActiveTopic({
+        ...activeTopic,
+        active_quiz: selectedQuiz,
+      } as Topic);
+
       setLastUsedQuizTitle(selectedQuiz.title);
       setIsUseQuizSuccessOpen(true);
     } finally {
@@ -163,6 +173,13 @@ const Topic = () => {
       setLastDeletedQuizTitle(selectedQuiz.title);
       setIsDeleteQuizSuccessOpen(true);
       setSelectedQuiz(null);
+
+      if (activeTopic?.active_quiz?._id === selectedQuiz._id) {
+        setActiveTopic({
+          ...activeTopic,
+          active_quiz: undefined,
+        } as Topic);
+      }
     } finally {
       setDeleteQuizLoading(false);
     }
