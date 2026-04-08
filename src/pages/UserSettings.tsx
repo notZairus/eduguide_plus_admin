@@ -223,7 +223,7 @@ const UserSettings = () => {
                   name="middle_name"
                   value={profileData.middle_name}
                   onChange={handleProfileChange}
-                  placeholder="Santos"
+                  placeholder=""
                 />
               </div>
 
