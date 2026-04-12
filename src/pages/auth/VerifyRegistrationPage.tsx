@@ -48,8 +48,8 @@ export default function VerifyRegistrationPage() {
 
       setError("Invalid or expired verification code.");
     } catch (e) {
-      const err = e as { response?: { data?: string } };
-      setError(err?.response?.data || "Verification failed");
+      console.log(e);
+      setError("Invalid or expired verification code.");
     } finally {
       setIsLoading(false);
     }
