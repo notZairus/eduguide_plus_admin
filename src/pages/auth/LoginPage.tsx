@@ -158,7 +158,7 @@ export default function LoginPage() {
           {/* Download APK Link */}
           <div className="text-center mt-6">
             <a
-              href="https://expo.dev/artifacts/eas/uK8XkX4VnPhBJPVmYVrsoA.apk"
+              href="https://expo.dev/artifacts/eas/9JhSv8wi7pRPGxRwyKbov.apk"
               target="_blank"
               rel="noopener noreferrer"
               className="inline-block text-sm font-semibold text-[#142e67] hover:underline hover:text-blue-700 transition-colors"
